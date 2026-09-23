@@ -1,626 +1,69 @@
 from pathlib import Path
-import zipfile, re
-
-code = r'''/**
- * ACCOUNTANT POSITION PROFESSIONAL TEST — GOOGLE SHEET API
- * Total = 45 Marks
- */
-
-const SPREADSHEET_ID = "1HHc-Nyjytr0KRcMvUmZOAyuUd4iW4XwPfk-UMwQqZbs";
-const RESULT_SHEET_NAME = "Recruitment Results";
-
-function doGet() {
-  return ContentService
-    .createTextOutput("Accountant Recruitment Test API is working.");
-}
-
-function getResultsSheet_() {
-
-  const ss =
-    SpreadsheetApp.openById(
-      SPREADSHEET_ID
-    );
-
-  let sheet =
-    ss.getSheetByName(
-      RESULT_SHEET_NAME
-    );
-
-  if (!sheet) {
-    sheet =
-      ss.insertSheet(
-        RESULT_SHEET_NAME
-      );
-  }
-
-  return sheet;
-}
-
-function buildHeaders_() {
-
-  const headers = [
-    "Timestamp",
-    "Candidate Name",
-
-    "Test Date",
-    "Start Time",
-    "End Time",
-
-    "MCQ Score",
-    "MCQ Total",
-
-    "Excel Score",
-    "Excel Total",
-
-    "Typing Score",
-    "Typing Total",
-
-    "Final Score",
-    "Grand Total",
-
-    "MCQ Time",
-    "Excel Time",
-    "Typing Time",
-    "Total Time",
-
-    "Completion"
-  ];
-
-  for (let i = 1; i <= 30; i++) {
-    headers.push("Q" + i + " Time");
-    headers.push("Q" + i + " Mark");
-  }
-
-  for (let i = 1; i <= 10; i++) {
-    headers.push("Excel Task " + i + " Mark");
-  }
-
-  headers.push(
-    "Myanmar Typing Mark",
-    "Myanmar Accuracy",
-    "Myanmar Typed",
-    "Myanmar Correct",
-    "Myanmar Errors",
-    "Myanmar CPM",
-    "Myanmar Time"
-  );
-
-  headers.push(
-    "English Typing Mark",
-    "English Accuracy",
-    "English Typed",
-    "English Correct",
-    "English Errors",
-    "English CPM",
-    "English Time"
-  );
-
-  headers.push(
-    "Result ID",
-    "System Review & Comment"
-  );
-
-  return headers;
-}
-
-function ensureHeaders_(sheet) {
-
-  const required =
-    buildHeaders_();
-
-  if (sheet.getLastRow() === 0) {
-
-    sheet
-      .getRange(
-        1,
-        1,
-        1,
-        required.length
-      )
-      .setValues([
-        required
-      ]);
-
-    sheet.setFrozenRows(1);
-
-    return;
-  }
-
-  const existingLength =
-    Math.max(
-      1,
-      sheet.getLastColumn()
-    );
-
-  const existing =
-    sheet
-      .getRange(
-        1,
-        1,
-        1,
-        existingLength
-      )
-      .getValues()[0];
-
-  const missing =
-    required.filter(
-      function(header) {
-        return (
-          existing.indexOf(header) === -1
-        );
-      }
-    );
-
-  if (missing.length > 0) {
-
-    sheet
-      .getRange(
-        1,
-        existingLength + 1,
-        1,
-        missing.length
-      )
-      .setValues([
-        missing
-      ]);
-
-  }
-
-  sheet.setFrozenRows(1);
-}
-
-function getHeaderMap_(sheet) {
-
-  const lastColumn =
-    sheet.getLastColumn();
-
-  const headers =
-    sheet
-      .getRange(
-        1,
-        1,
-        1,
-        lastColumn
-      )
-      .getValues()[0];
-
-  const map = {};
-
-  headers.forEach(
-    function(header, index) {
-      if (header) {
-        map[header] = index;
-      }
-    }
-  );
-
-  return map;
-}
-
-function parseArray_(value) {
-
-  try {
-    return JSON.parse(
-      value || "[]"
-    );
-  } catch (error) {
-    return [];
-  }
-}
-
-function put_(row, headerMap, header, value) {
-
-  if (
-    headerMap[header] !== undefined
-  ) {
-
-    row[headerMap[header]] =
-      value;
-
-  }
-}
-
-function doPost(e) {
-
-  try {
-
-    const sheet =
-      getResultsSheet_();
-
-    ensureHeaders_(
-      sheet
-    );
-
-    const p =
-      e &&
-      e.parameter
-        ? e.parameter
-        : {};
-
-    const mcqMarks =
-      parseArray_(
-        p.mcqMarks
-      );
-
-    const mcqTimes =
-      parseArray_(
-        p.mcqTimes
-      );
-
-    const excelMarks =
-      parseArray_(
-        p.excelMarks
-      );
-
-    const headerMap =
-      getHeaderMap_(
-        sheet
-      );
-
-    const row =
-      new Array(
-        sheet.getLastColumn()
-      ).fill("");
-
-    // Candidate / date / time
-    put_(
-      row,
-      headerMap,
-      "Timestamp",
-      new Date()
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Candidate Name",
-      p.name || ""
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Test Date",
-      p.testDate || ""
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Start Time",
-      p.startTime || ""
-    );
-
-    put_(
-      row,
-      headerMap,
-      "End Time",
-      p.endTime || ""
-    );
-
-    // Section 1
-    put_(
-      row,
-      headerMap,
-      "MCQ Score",
-      Number(
-        p.mcqScore || 0
-      )
-    );
-
-    put_(
-      row,
-      headerMap,
-      "MCQ Total",
-      30
-    );
-
-    // Section 2
-    put_(
-      row,
-      headerMap,
-      "Excel Score",
-      Number(
-        p.excelScore || 0
-      )
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Excel Total",
-      10
-    );
-
-    // Section 3
-    put_(
-      row,
-      headerMap,
-      "Typing Score",
-      Number(
-        p.typingScore || 0
-      )
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Typing Total",
-      5
-    );
-
-    // Final
-    put_(
-      row,
-      headerMap,
-      "Final Score",
-      Number(
-        p.finalScore || 0
-      )
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Grand Total",
-      45
-    );
-
-    // Durations
-    put_(
-      row,
-      headerMap,
-      "MCQ Time",
-      p.mcqTime || ""
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Excel Time",
-      p.excelTime || ""
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Typing Time",
-      p.typingTime || ""
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Total Time",
-      p.totalTime || ""
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Completion",
-      p.completion || ""
-    );
-
-    // Q1-Q30
-    for (
-      let i = 0;
-      i < 30;
-      i++
-    ) {
-
-      put_(
-        row,
-        headerMap,
-        "Q" + (i + 1) + " Time",
-        mcqTimes[i] !== undefined
-          ? mcqTimes[i]
-          : 0
-      );
-
-      put_(
-        row,
-        headerMap,
-        "Q" + (i + 1) + " Mark",
-        mcqMarks[i] !== undefined
-          ? mcqMarks[i]
-          : 0
-      );
-
-    }
-
-    // Excel Task 1-10
-    for (
-      let i = 0;
-      i < 10;
-      i++
-    ) {
-
-      put_(
-        row,
-        headerMap,
-        "Excel Task " + (i + 1) + " Mark",
-        excelMarks[i] !== undefined
-          ? excelMarks[i]
-          : 0
-      );
-
-    }
-
-    // Myanmar typing
-    put_(
-      row,
-      headerMap,
-      "Myanmar Typing Mark",
-      p.myanmarScore || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Myanmar Accuracy",
-      p.myanmarAccuracy || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Myanmar Typed",
-      p.myanmarTyped || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Myanmar Correct",
-      p.myanmarCorrect || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Myanmar Errors",
-      p.myanmarErrors || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Myanmar CPM",
-      p.myanmarCPM || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "Myanmar Time",
-      p.myanmarTime || ""
-    );
-
-    // English typing
-    put_(
-      row,
-      headerMap,
-      "English Typing Mark",
-      p.englishScore || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "English Accuracy",
-      p.englishAccuracy || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "English Typed",
-      p.englishTyped || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "English Correct",
-      p.englishCorrect || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "English Errors",
-      p.englishErrors || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "English CPM",
-      p.englishCPM || 0
-    );
-
-    put_(
-      row,
-      headerMap,
-      "English Time",
-      p.englishTime || ""
-    );
-
-    // System review
-    put_(
-      row,
-      headerMap,
-      "Result ID",
-      p.resultId || ""
-    );
-
-    put_(
-      row,
-      headerMap,
-      "System Review & Comment",
-      p.systemComment || ""
-    );
-
-    const nextRow =
-      sheet.getLastRow() + 1;
-
-    sheet
-      .getRange(
-        nextRow,
-        1,
-        1,
-        row.length
-      )
-      .setValues([
-        row
-      ]);
-
-    return ContentService
-      .createTextOutput(
-        JSON.stringify({
-          success: true,
-          message:
-            "Recruitment test result saved.",
-          resultId:
-            p.resultId || "",
-          row:
-            nextRow
-        })
-      )
-      .setMimeType(
-        ContentService.MimeType.JSON
-      );
-
-  } catch (error) {
-
-    return ContentService
-      .createTextOutput(
-        JSON.stringify({
-          success: false,
-          error:
-            error.toString()
-        })
-      )
-      .setMimeType(
-        ContentService.MimeType.JSON
-      );
-  }
-}
+import zipfile
+
+src = Path("/mnt/data/accountant_test_with_awards_banner.html")
+html = src.read_text(encoding="utf-8")
+
+old = '''    <p>
+      <b>Candidate:</b>
+      <span id="rName"></span>
+    </p>
+
+    <p>
+      <b>Test Date:</b>
+      <span id="rTestDate"></span>
+      &nbsp; | &nbsp;
+      <b>Start Time:</b>
+      <span id="rStartTime"></span>
+      &nbsp; | &nbsp;
+      <b>End Time:</b>
+      <span id="rEndTime"></span>
+    </p>
 '''
+new = '''    <p style="
+      display:flex;
+      flex-wrap:wrap;
+      gap:8px 18px;
+      align-items:center;
+      margin-bottom:14px;
+    ">
+      <span>
+        <b>Candidate:</b>
+        <span id="rName"></span>
+      </span>
 
-code_out = Path("/mnt/data/accountant_Code_gs_with_date_start_end.txt")
-code_out.write_text(code, encoding="utf-8")
+      <span>
+        <b>Test Date:</b>
+        <span id="rTestDate"></span>
+      </span>
 
-zip_out = Path("/mnt/data/accountant_test_with_date_start_end_ready.zip")
+      <span>
+        <b>Start Time:</b>
+        <span id="rStartTime"></span>
+      </span>
+
+      <span>
+        <b>End Time:</b>
+        <span id="rEndTime"></span>
+      </span>
+    </p>
+'''
+if old not in html:
+    raise RuntimeError("Expected candidate/date result block not found.")
+
+html = html.replace(old, new, 1)
+
+out = Path("/mnt/data/accountant_test_result_candidate_datetime_line.html")
+out.write_text(html, encoding="utf-8")
+
+code = Path("/mnt/data/accountant_Code_gs_with_date_start_end.txt")
 excel = Path("/mnt/data/accountant_recruitment_45mark_system/accountant_excel_test_template.xlsx")
-html = Path("/mnt/data/accountant_test_with_awards_banner.html")
+zip_out = Path("/mnt/data/accountant_test_candidate_datetime_final.zip")
 
 with zipfile.ZipFile(zip_out, "w", zipfile.ZIP_DEFLATED) as z:
-    z.write(html, "index.html")
-    z.write(code_out, "Code.gs")
+    z.write(out, "index.html")
+    z.write(code, "Code.gs")
     z.write(excel, "accountant_excel_test_template.xlsx")
 
-print("Updated Code.gs with header-safe Date/Start/End fields.")
-print(code_out)
+print(out)
 print(zip_out)
