@@ -128,8 +128,49 @@ th{background:#eef2f5}
     </table>
 
     <br>
-    <p><b>Myanmar Typing:</b> <span id="rMyanmar"></span> / 2.5 — Accuracy: <span id="rMyanmarAccuracy"></span></p>
-    <p><b>English Typing:</b> <span id="rEnglish"></span> / 2.5 — Accuracy: <span id="rEnglishAccuracy"></span></p>
+
+    <h2>Test 3 — Typing Detailed Result</h2>
+
+    <table>
+      <tr>
+        <th>Section</th>
+        <th>Score</th>
+        <th>Accuracy</th>
+        <th>Typed</th>
+        <th>Correct</th>
+        <th>Errors</th>
+        <th>Speed</th>
+        <th>Time</th>
+      </tr>
+
+      <tr>
+        <td>Myanmar Font</td>
+        <td id="rMyanmar"></td>
+        <td id="rMyanmarAccuracy"></td>
+        <td id="rMyanmarTyped"></td>
+        <td id="rMyanmarCorrect"></td>
+        <td id="rMyanmarErrors"></td>
+        <td id="rMyanmarSpeed"></td>
+        <td id="rMyanmarTime"></td>
+      </tr>
+
+      <tr>
+        <td>English Font</td>
+        <td id="rEnglish"></td>
+        <td id="rEnglishAccuracy"></td>
+        <td id="rEnglishTyped"></td>
+        <td id="rEnglishCorrect"></td>
+        <td id="rEnglishErrors"></td>
+        <td id="rEnglishSpeed"></td>
+        <td id="rEnglishTime"></td>
+      </tr>
+    </table>
+
+    <p>
+      <b>Typing Total:</b>
+      <span id="rTyping"></span> / 5
+    </p>
+
     <p><b>Completion:</b> <span id="rCompletion"></span></p>
 
     <div id="saveStatus" class="status saving">Saving final result to Google Sheet...</div>
@@ -206,6 +247,39 @@ function calcTypingAccuracy(target, typed){
 
 function typingScore(target, typed, maxMarks){
   return maxMarks * calcTypingAccuracy(target, typed) / 100;
+}
+
+function typingMetrics(target, typed, seconds){
+  target = cleanText(target);
+  typed = cleanText(typed);
+  seconds = Math.max(0.1, Number(seconds || 0));
+
+  const maxLength = Math.max(target.length, typed.length);
+  const compareLength = Math.min(target.length, typed.length);
+
+  let correct = 0;
+
+  for(let i = 0; i < compareLength; i++){
+    if(target[i] === typed[i]){
+      correct++;
+    }
+  }
+
+  const substitutions = compareLength - correct;
+  const omissions = Math.max(0, target.length - typed.length);
+  const extras = Math.max(0, typed.length - target.length);
+
+  const errors = substitutions + omissions + extras;
+  const accuracy = maxLength ? (correct / maxLength) * 100 : 0;
+  const cpm = (correct / seconds) * 60;
+
+  return {
+    typed: typed.length,
+    correct: correct,
+    errors: errors,
+    accuracy: accuracy,
+    cpm: cpm
+  };
 }
 
 function startTest(){
@@ -603,35 +677,6 @@ function finishTyping(autoEnd){
   const englishInput =
     document.getElementById("englishInput").value;
 
-  const myanmarAccuracy =
-    calcTypingAccuracy(
-      MYANMAR_TEXT,
-      myanmarInput
-    );
-
-  const englishAccuracy =
-    calcTypingAccuracy(
-      ENGLISH_TEXT,
-      englishInput
-    );
-
-  const myanmarScore =
-    typingScore(
-      MYANMAR_TEXT,
-      myanmarInput,
-      2.5
-    );
-
-  const englishScore =
-    typingScore(
-      ENGLISH_TEXT,
-      englishInput,
-      2.5
-    );
-
-  const typingTotal =
-    myanmarScore + englishScore;
-
   const myanmarTime =
     Math.min(
       150,
@@ -643,6 +688,35 @@ function finishTyping(autoEnd){
       150,
       (Date.now() - englishStart) / 1000
     );
+
+  const myanmarMetrics =
+    typingMetrics(
+      MYANMAR_TEXT,
+      myanmarInput,
+      myanmarTime
+    );
+
+  const englishMetrics =
+    typingMetrics(
+      ENGLISH_TEXT,
+      englishInput,
+      englishTime
+    );
+
+  const myanmarAccuracy =
+    myanmarMetrics.accuracy;
+
+  const englishAccuracy =
+    englishMetrics.accuracy;
+
+  const myanmarScore =
+    2.5 * myanmarAccuracy / 100;
+
+  const englishScore =
+    2.5 * englishAccuracy / 100;
+
+  const typingTotal =
+    myanmarScore + englishScore;
 
   const typingTime =
     myanmarTime + englishTime;
@@ -675,7 +749,9 @@ function finishTyping(autoEnd){
     englishAccuracy,
     englishTime,
     autoEnd,
-    savedExcelDetails
+    savedExcelDetails,
+    myanmarMetrics,
+    englishMetrics
   );
 }
 
@@ -699,7 +775,9 @@ function showResult(
   englishAccuracy,
   englishTime,
   autoEnd,
-  excelDetails
+  excelDetails,
+  myanmarMetrics,
+  englishMetrics
 ){
 
   document.getElementById("result").classList.remove("hidden");
@@ -717,9 +795,19 @@ function showResult(
 
   document.getElementById("rMyanmar").textContent = myanmarScore.toFixed(2);
   document.getElementById("rMyanmarAccuracy").textContent = myanmarAccuracy.toFixed(1) + "%";
+  document.getElementById("rMyanmarTyped").textContent = myanmarMetrics.typed;
+  document.getElementById("rMyanmarCorrect").textContent = myanmarMetrics.correct;
+  document.getElementById("rMyanmarErrors").textContent = myanmarMetrics.errors;
+  document.getElementById("rMyanmarSpeed").textContent = myanmarMetrics.cpm.toFixed(1) + " CPM";
+  document.getElementById("rMyanmarTime").textContent = fmt(myanmarTime);
 
   document.getElementById("rEnglish").textContent = englishScore.toFixed(2);
   document.getElementById("rEnglishAccuracy").textContent = englishAccuracy.toFixed(1) + "%";
+  document.getElementById("rEnglishTyped").textContent = englishMetrics.typed;
+  document.getElementById("rEnglishCorrect").textContent = englishMetrics.correct;
+  document.getElementById("rEnglishErrors").textContent = englishMetrics.errors;
+  document.getElementById("rEnglishSpeed").textContent = englishMetrics.cpm.toFixed(1) + " CPM";
+  document.getElementById("rEnglishTime").textContent = fmt(englishTime);
 
   document.getElementById("rCompletion").textContent =
     autoEnd
@@ -759,7 +847,9 @@ function showResult(
     englishScore,
     englishAccuracy,
     englishTime,
-    autoEnd
+    autoEnd,
+    myanmarMetrics,
+    englishMetrics
   );
 }
 
@@ -778,7 +868,9 @@ async function sendResult(
   englishScore,
   englishAccuracy,
   englishTime,
-  autoEnd
+  autoEnd,
+  myanmarMetrics,
+  englishMetrics
 ){
 
   const status = document.getElementById("saveStatus");
@@ -837,6 +929,16 @@ async function sendResult(
   payload.append("englishScore", englishScore.toFixed(2));
   payload.append("englishAccuracy", englishAccuracy.toFixed(1));
   payload.append("englishTime", fmt(englishTime));
+
+  payload.append("myanmarTyped", myanmarMetrics.typed);
+  payload.append("myanmarCorrect", myanmarMetrics.correct);
+  payload.append("myanmarErrors", myanmarMetrics.errors);
+  payload.append("myanmarCPM", myanmarMetrics.cpm.toFixed(1));
+
+  payload.append("englishTyped", englishMetrics.typed);
+  payload.append("englishCorrect", englishMetrics.correct);
+  payload.append("englishErrors", englishMetrics.errors);
+  payload.append("englishCPM", englishMetrics.cpm.toFixed(1));
 
   try{
 
