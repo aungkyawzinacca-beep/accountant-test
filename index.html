@@ -3,225 +3,1723 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Accountant Recruitment Professional Test</title>
+<title>Accountant Recruitment Test — 40 Marks</title>
+
 <style>
-body{font-family:Arial,"Noto Sans Myanmar",sans-serif;background:#f4f6f8;margin:0;color:#17202a}
-.container{max-width:900px;margin:30px auto;padding:24px}
-.card{background:white;border-radius:14px;padding:28px;box-shadow:0 4px 18px rgba(0,0,0,.08);margin-bottom:18px}
-h1{margin-top:0} .muted{color:#68737d}
-input[type=text]{width:100%;box-sizing:border-box;padding:13px;border:1px solid #cbd3da;border-radius:8px;font-size:16px}
-button{border:0;border-radius:8px;padding:12px 18px;font-size:15px;cursor:pointer}
-.primary{background:#1769aa;color:white} .secondary{background:#e9eef2}
-.timer{font-size:24px;font-weight:bold} .danger{color:#c62828}
-.progress{height:8px;background:#e4e8eb;border-radius:5px;overflow:hidden;margin:12px 0 22px}
-.bar{height:100%;background:#1769aa;width:0}
-.option{display:block;border:1px solid #d6dce1;padding:13px;border-radius:8px;margin:10px 0;cursor:pointer}
-.option:hover{background:#f5f9fc}
-.option input{margin-right:10px}
-.hidden{display:none}
-.result-table{width:100%;border-collapse:collapse}
-.result-table th,.result-table td{border:1px solid #d8dde2;padding:8px;text-align:center}
-.result-table th{background:#eef2f5}
-.badge{display:inline-block;padding:5px 9px;border-radius:15px;background:#eef2f5}
-.status{padding:10px;border-radius:8px;margin-top:12px}
-.status.saving{background:#fff8e1} .status.ok{background:#e8f5e9} .status.err{background:#ffebee}
-@media print {
- body{background:white}
- .no-print{display:none!important}
- .card{box-shadow:none;border:0}
+body{
+  font-family:Arial,"Noto Sans Myanmar",sans-serif;
+  background:#f4f6f8;
+  color:#17202a;
+  margin:0
+}
+.container{
+  max-width:920px;
+  margin:25px auto;
+  padding:20px
+}
+.card{
+  background:#fff;
+  padding:26px;
+  border-radius:14px;
+  box-shadow:0 3px 15px #0001;
+  margin-bottom:18px
+}
+h1,h2{
+  margin-top:0
+}
+.muted{
+  color:#66717b
+}
+.hidden{
+  display:none
+}
+input,textarea{
+  box-sizing:border-box;
+  width:100%;
+  padding:12px;
+  border:1px solid #cbd3da;
+  border-radius:8px;
+  font-size:16px
+}
+button{
+  padding:12px 18px;
+  border:0;
+  border-radius:8px;
+  cursor:pointer;
+  font-size:15px
+}
+.primary{
+  background:#1769aa;
+  color:white
+}
+.secondary{
+  background:#e8edf1
+}
+.timer{
+  font-size:24px;
+  font-weight:bold
+}
+.progress{
+  height:8px;
+  background:#e5e8eb;
+  border-radius:6px;
+  overflow:hidden;
+  margin:15px 0
+}
+.bar{
+  height:100%;
+  background:#1769aa;
+  width:0
+}
+.option{
+  display:block;
+  border:1px solid #d4dbe1;
+  padding:13px;
+  margin:10px 0;
+  border-radius:8px;
+  cursor:pointer
+}
+.option:hover{
+  background:#f5f9fc
+}
+.task{
+  padding:15px;
+  border:1px solid #d9dfe4;
+  border-radius:9px;
+  margin:10px 0;
+  background:#fafbfc
+}
+.task input{
+  margin-top:8px
+}
+table{
+  width:100%;
+  border-collapse:collapse
+}
+th,td{
+  border:1px solid #d5dbe0;
+  padding:8px;
+  text-align:center
+}
+th{
+  background:#eef2f5
+}
+.status{
+  padding:12px;
+  border-radius:8px;
+  margin-top:12px
+}
+.ok{
+  background:#e8f5e9
+}
+.saving{
+  background:#fff8e1
+}
+.err{
+  background:#ffebee
+}
+@media print{
+  .no-print{
+    display:none!important
+  }
+  body{
+    background:white
+  }
+  .card{
+    box-shadow:none
+  }
 }
 </style>
 </head>
+
 <body>
+
 <div class="container">
-  <div id="start" class="card">
-    <h1>Accountant Position Recruitment Test</h1>
-    <p class="muted">Professional MCQ Assessment • 30 Questions • 30 Minutes • 1 Mark Each</p>
-    <label><b>Candidate Name</b></label>
-    <input id="candidateName" type="text" placeholder="Enter candidate name" autocomplete="name">
-    <br><br>
-    <button class="primary" onclick="startTest()">Start Test</button>
-    <p class="muted">Each question has a maximum of 1 minute. The test automatically moves to the next question when the question timer expires. The entire test ends automatically after 30 minutes.</p>
-  </div>
 
-  <div id="test" class="hidden">
-    <div class="card">
-      <div style="display:flex;justify-content:space-between;gap:15px;align-items:center">
-        <div><b id="candidateDisplay"></b><div class="muted" id="qCounter"></div></div>
-        <div>Overall: <span class="timer" id="overallTimer">30:00</span></div>
-      </div>
-      <div class="progress"><div class="bar" id="progressBar"></div></div>
-      <div style="display:flex;justify-content:space-between">
-        <span>Question time: <b class="timer" id="questionTimer">01:00</b></span>
-        <span class="badge">1 mark</span>
-      </div>
-    </div>
-    <div class="card">
-      <h2 id="questionText"></h2>
-      <div id="options"></div>
-      <br>
-      <button class="primary" onclick="nextQuestion()">Next Question</button>
-    </div>
-  </div>
+<!-- =========================
+     START SCREEN
+========================= -->
 
-  <div id="result" class="card hidden">
-    <div id="printArea">
-      <h1>Accountant Recruitment Test — Result</h1>
-      <p><b>Candidate:</b> <span id="resultName"></span></p>
-      <p><b>Total Score:</b> <span id="score"></span> / 30</p>
-      <p><b>Total Time:</b> <span id="totalTime"></span></p>
-      <p><b>Completion:</b> <span id="completion"></span></p>
-      <div id="saveStatus" class="status saving">Saving result to Google Sheet...</div>
-      <hr>
-      <table class="result-table">
-        <thead><tr><th>Q</th><th>Result</th><th>Time Used</th><th>Mark</th></tr></thead>
-        <tbody id="resultRows"></tbody>
-      </table>
-    </div>
-    <br>
-    <div class="no-print">
-      <button class="primary" onclick="window.print()">Download / Save PDF</button>
-      <button class="secondary" onclick="location.reload()">New Candidate</button>
-      <p class="muted">PDF ကို download/save လုပ်ရန် button ကိုနှိပ်ပြီး Print dialog ထဲမှ <b>Save as PDF</b> ကိုရွေးပါ။</p>
-    </div>
-  </div>
+<div id="start" class="card">
+
+  <h1>Accountant Position Recruitment Test</h1>
+
+  <p class="muted">
+    Test 1: Accounting MCQ — 30 marks / 30 minutes
+  </p>
+
+  <p class="muted">
+    Test 2: Excel Practical — 10 marks / 5 minutes
+  </p>
+
+  <p>
+    <b>Total: 40 marks</b>
+  </p>
+
+  <label>
+    <b>Candidate Name</b>
+  </label>
+
+  <input
+    id="candidateName"
+    placeholder="Enter candidate name"
+    autocomplete="name"
+  >
+
+  <br><br>
+
+  <button class="primary" onclick="startTest()">
+    Start Test
+  </button>
+
 </div>
 
+
+<!-- =========================
+     TEST 1 - MCQ
+========================= -->
+
+<div id="mcq" class="hidden">
+
+  <div class="card">
+
+    <div style="display:flex;justify-content:space-between;gap:15px">
+
+      <div>
+        <b id="cand1"></b>
+        <div id="mcqCounter"></div>
+      </div>
+
+      <div>
+        Overall:
+        <span class="timer" id="overall">
+          30:00
+        </span>
+      </div>
+
+    </div>
+
+    <div class="progress">
+      <div class="bar" id="mcqBar"></div>
+    </div>
+
+    Question time:
+    <span class="timer" id="qTimer">
+      01:00
+    </span>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2 id="qText"></h2>
+
+    <div id="opts"></div>
+
+    <button class="primary" onclick="nextQ()">
+      Next Question
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     TEST 2 - EXCEL
+========================= -->
+
+<div id="excel" class="hidden">
+
+  <div class="card">
+
+    <h1>Test 2 — Excel Practical</h1>
+
+    <p>
+      <b>10 marks • 5 minutes</b>
+    </p>
+
+    <p>
+      Use the data and formulas below.
+      Enter your answer/formula in each yellow box.
+    </p>
+
+    <p class="muted">
+      This is a browser-based Excel practical simulation.
+      Candidates enter Excel results or formulas and the system grades them.
+    </p>
+
+    <div style="display:flex;justify-content:space-between">
+
+      <b id="cand2"></b>
+
+      <span>
+        Time:
+        <span class="timer" id="excelTimer">
+          05:00
+        </span>
+      </span>
+
+    </div>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2>Data</h2>
+
+    <table>
+
+      <tr>
+        <th>Invoice</th>
+        <th>Department</th>
+        <th>Sales</th>
+        <th>Cost</th>
+      </tr>
+
+      <tr>
+        <td>INV001</td>
+        <td>Sales</td>
+        <td>125,000</td>
+        <td>80,000</td>
+      </tr>
+
+      <tr>
+        <td>INV002</td>
+        <td>Admin</td>
+        <td>45,000</td>
+        <td>26,000</td>
+      </tr>
+
+      <tr>
+        <td>INV003</td>
+        <td>Sales</td>
+        <td>98,000</td>
+        <td>61,000</td>
+      </tr>
+
+      <tr>
+        <td>INV004</td>
+        <td>Finance</td>
+        <td>72,000</td>
+        <td>43,000</td>
+      </tr>
+
+      <tr>
+        <td>INV005</td>
+        <td>Sales</td>
+        <td>150,000</td>
+        <td>90,000</td>
+      </tr>
+
+      <tr>
+        <td>INV006</td>
+        <td>Admin</td>
+        <td>55,000</td>
+        <td>32,000</td>
+      </tr>
+
+      <tr>
+        <td>INV007</td>
+        <td>Finance</td>
+        <td>88,000</td>
+        <td>52,000</td>
+      </tr>
+
+      <tr>
+        <td>INV008</td>
+        <td>Sales</td>
+        <td>110,000</td>
+        <td>66,000</td>
+      </tr>
+
+      <tr>
+        <td>INV009</td>
+        <td>Admin</td>
+        <td>62,000</td>
+        <td>37,000</td>
+      </tr>
+
+      <tr>
+        <td>INV010</td>
+        <td>Finance</td>
+        <td>93,000</td>
+        <td>57,000</td>
+      </tr>
+
+    </table>
+
+  </div>
+
+
+  <div class="card">
+
+    <h2>10 Tasks — 1 mark each</h2>
+
+    <div id="tasks"></div>
+
+    <button
+      class="primary"
+      onclick="finishExcel()"
+    >
+      Submit Excel Test
+    </button>
+
+  </div>
+
+</div>
+
+
+<!-- =========================
+     RESULT
+========================= -->
+
+<div id="result" class="hidden">
+
+  <div class="card" id="printArea">
+
+    <h1>
+      Accountant Recruitment Test — Final Result
+    </h1>
+
+    <p>
+      <b>Candidate:</b>
+      <span id="rName"></span>
+    </p>
+
+    <p>
+      <b>Test 1 — MCQ:</b>
+      <span id="rMcq"></span> / 30
+    </p>
+
+    <p>
+      <b>Test 2 — Excel:</b>
+      <span id="rExcel"></span> / 10
+    </p>
+
+    <p>
+      <b>FINAL SCORE:</b>
+      <span id="rTotal"></span> / 40
+    </p>
+
+    <p>
+      <b>MCQ Time:</b>
+      <span id="rMcqTime"></span>
+      |
+      <b>Excel Time:</b>
+      <span id="rExcelTime"></span>
+    </p>
+
+    <p>
+      <b>Completion:</b>
+      <span id="rCompletion"></span>
+    </p>
+
+    <div
+      id="saveStatus"
+      class="status saving"
+    >
+      Saving final result to Google Sheet...
+    </div>
+
+    <hr>
+
+    <div id="breakdown"></div>
+
+  </div>
+
+
+  <div class="no-print">
+
+    <button
+      class="primary"
+      onclick="window.print()"
+    >
+      Save / Print PDF
+    </button>
+
+  </div>
+
+</div>
+
+</div>
+
+
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzAouQ021PDCTaolOQLiQTQxRCXgp1HjJsEoxiwsAerA0jUyu76dci6jaKAV-3kpL1vLQ/exec";
-const questions = [{"q": "Which account normally has a credit balance?", "opts": ["Accounts Receivable", "Prepaid Insurance", "Accounts Payable", "Equipment"], "ans": 2}, {"q": "A company buys office equipment for $12,000 cash. Which entry is correct?", "opts": ["Dr Cash / Cr Equipment", "Dr Equipment / Cr Cash", "Dr Expense / Cr Cash", "Dr Equipment / Cr Revenue"], "ans": 1}, {"q": "Cash received in advance from a customer for services to be provided next month is initially recorded as:", "opts": ["Revenue", "Accounts Receivable", "Unearned Revenue", "Expense"], "ans": 2}, {"q": "The main purpose of an adjusting entry is to:", "opts": ["Close temporary accounts", "Recognize revenues and expenses in the proper period", "Record only cash transactions", "Eliminate all errors"], "ans": 1}, {"q": "Accounts Receivable is $100,000 and estimated uncollectible accounts are 3%. Required allowance is:", "opts": ["$300", "$3,000", "$30,000", "$97,000"], "ans": 1}, {"q": "If ending inventory is understated, current-year gross profit will generally be:", "opts": ["Overstated", "Understated", "Unchanged", "Doubled"], "ans": 1}, {"q": "Under FIFO, when prices are rising, the oldest inventory costs are generally assigned to:", "opts": ["Ending inventory", "Cost of Goods Sold", "Accounts Payable", "Revenue"], "ans": 1}, {"q": "A machine costs $50,000, residual value $5,000, useful life 5 years. Straight-line annual depreciation is:", "opts": ["$9,000", "$10,000", "$11,000", "$45,000"], "ans": 0}, {"q": "Which statement reports assets, liabilities and equity at a specific date?", "opts": ["Income Statement", "Cash Flow Statement", "Statement of Financial Position", "Statement of Changes in Equity"], "ans": 2}, {"q": "Which transaction increases both an asset and a liability?", "opts": ["Paying accounts payable", "Purchasing equipment on credit", "Collecting a receivable", "Paying salaries"], "ans": 1}, {"q": "The fundamental accounting equation is:", "opts": ["Assets = Revenue − Expenses", "Assets = Liabilities + Equity", "Assets + Liabilities = Equity", "Equity = Assets + Liabilities"], "ans": 1}, {"q": "Which is normally a current asset?", "opts": ["Land", "Long-term investment", "Inventory", "Patent with 15-year life"], "ans": 2}, {"q": "Accrued salary expense at year-end should be recorded as:", "opts": ["Dr Salary Expense / Cr Salary Payable", "Dr Salary Payable / Cr Salary Expense", "Dr Cash / Cr Salary Expense", "Dr Salary Expense / Cr Cash"], "ans": 0}, {"q": "Prepaid insurance decreases during the period because:", "opts": ["It becomes a liability", "Insurance coverage is consumed", "Cash is received", "Revenue is recognized"], "ans": 1}, {"q": "Which is a non-cash expense?", "opts": ["Rent Expense", "Salary Expense", "Depreciation Expense", "Electricity Expense"], "ans": 2}, {"q": "Sales are $500,000 and Cost of Goods Sold is $320,000. Gross profit is:", "opts": ["$180,000", "$320,000", "$500,000", "$820,000"], "ans": 0}, {"q": "Gross profit margin is:", "opts": ["Gross Profit ÷ Sales", "Net Profit ÷ Total Assets", "Gross Profit ÷ Total Assets", "Sales ÷ Gross Profit"], "ans": 0}, {"q": "The primary purpose of a bank reconciliation is to:", "opts": ["Calculate depreciation", "Compare company cash records with bank records and identify differences", "Calculate gross profit", "Prepare payroll"], "ans": 1}, {"q": "An outstanding cheque is a cheque that:", "opts": ["Has been issued but not yet presented to the bank", "Has been received but not recorded", "Has been cancelled", "Has been rejected by a supplier"], "ans": 0}, {"q": "Which error may not cause the trial balance to disagree?", "opts": ["Debit recorded as credit", "Transaction omitted entirely", "$5,000 debit recorded as $500", "Debit posted without corresponding credit"], "ans": 1}, {"q": "Fixed costs, within the relevant range, generally:", "opts": ["Increase directly with volume", "Remain constant in total despite activity changes", "Are always zero at zero production", "Always decrease as production increases"], "ans": 1}, {"q": "Variable cost per unit generally:", "opts": ["Remains constant within the relevant range", "Increases with total production", "Equals fixed cost per unit", "Is always zero at zero production"], "ans": 0}, {"q": "Selling price is $50 and variable cost is $30. Contribution margin per unit is:", "opts": ["$20", "$30", "$50", "$80"], "ans": 0}, {"q": "Fixed costs are $100,000 and contribution margin per unit is $25. Break-even volume is:", "opts": ["2,500 units", "4,000 units", "5,000 units", "25,000 units"], "ans": 1}, {"q": "Contribution margin equals:", "opts": ["Sales − Fixed Costs", "Sales − Variable Costs", "Sales − Total Costs", "Gross Profit − Fixed Costs"], "ans": 1}, {"q": "Actual sales are $600,000 and break-even sales are $450,000. Margin of safety is:", "opts": ["$150,000", "$450,000", "$600,000", "$1,050,000"], "ans": 0}, {"q": "Which is most likely a direct cost for a furniture manufacturer?", "opts": ["Factory rent", "Factory manager salary", "Wood used in a specific table", "Security expense"], "ans": 2}, {"q": "Which budgeting approach requires each expense to be justified from zero?", "opts": ["Incremental Budgeting", "Flexible Budgeting", "Zero-Based Budgeting", "Rolling Budgeting"], "ans": 2}, {"q": "Which control best demonstrates segregation of duties?", "opts": ["One employee handles cash and performs bank reconciliation", "One employee approves and pays suppliers", "One employee authorizes payments while another processes them", "An accountant approves their own journal entries"], "ans": 2}, {"q": "Which Excel formula correctly totals cells B2 through B20?", "opts": ["=ADD(B2:B20)", "=TOTAL(B2:B20)", "=SUM(B2:B20)", "=COUNT(B2:B20)"], "ans": 2}];
 
-let idx=0, answers=[], times=[], qStart=0, testStart=0;
-let qInterval=null, overallInterval=null, finished=false, submitted=false;
+/* =====================================================
+   GOOGLE APPS SCRIPT WEB APP URL
+===================================================== */
 
-function fmt(sec) {
-  sec=Math.max(0,Math.ceil(sec));
-  return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
+const WEB_APP_URL =
+"https://script.google.com/macros/s/AKfycbzAouQ021PDCTaolOQLiQTQxRCXgp1HjJsEoxiwsAerA0jUyu76dci6jaKAV-3kpL1vLQ/exec";
+
+
+/* =====================================================
+   TEST 1 - 30 MCQ
+===================================================== */
+
+const questions = [
+
+{
+  q:"Which account normally has a credit balance?",
+  opts:[
+    "Accounts Receivable",
+    "Prepaid Insurance",
+    "Accounts Payable",
+    "Equipment"
+  ],
+  ans:2
+},
+
+{
+  q:"A company buys office equipment for $12,000 cash. Which entry is correct?",
+  opts:[
+    "Dr Cash / Cr Equipment",
+    "Dr Equipment / Cr Cash",
+    "Dr Expense / Cr Cash",
+    "Dr Equipment / Cr Revenue"
+  ],
+  ans:1
+},
+
+{
+  q:"Cash received in advance from a customer for services to be provided next month is initially recorded as:",
+  opts:[
+    "Revenue",
+    "Accounts Receivable",
+    "Unearned Revenue",
+    "Expense"
+  ],
+  ans:2
+},
+
+{
+  q:"The main purpose of an adjusting entry is to:",
+  opts:[
+    "Close temporary accounts",
+    "Recognize revenues and expenses in the proper period",
+    "Record only cash transactions",
+    "Eliminate all errors"
+  ],
+  ans:1
+},
+
+{
+  q:"Accounts Receivable is $100,000 and estimated uncollectible accounts are 3%. Required allowance is:",
+  opts:[
+    "$300",
+    "$3,000",
+    "$30,000",
+    "$97,000"
+  ],
+  ans:1
+},
+
+{
+  q:"If ending inventory is understated, current-year gross profit will generally be:",
+  opts:[
+    "Overstated",
+    "Understated",
+    "Unchanged",
+    "Doubled"
+  ],
+  ans:1
+},
+
+{
+  q:"Under FIFO, when prices are rising, the oldest inventory costs are generally assigned to:",
+  opts:[
+    "Ending inventory",
+    "Cost of Goods Sold",
+    "Accounts Payable",
+    "Revenue"
+  ],
+  ans:1
+},
+
+{
+  q:"A machine costs $50,000, residual value $5,000, useful life 5 years. Straight-line annual depreciation is:",
+  opts:[
+    "$9,000",
+    "$10,000",
+    "$11,000",
+    "$45,000"
+  ],
+  ans:0
+},
+
+{
+  q:"Which statement reports assets, liabilities and equity at a specific date?",
+  opts:[
+    "Income Statement",
+    "Cash Flow Statement",
+    "Statement of Financial Position",
+    "Statement of Changes in Equity"
+  ],
+  ans:2
+},
+
+{
+  q:"Which transaction increases both an asset and a liability?",
+  opts:[
+    "Paying accounts payable",
+    "Purchasing equipment on credit",
+    "Collecting a receivable",
+    "Paying salaries"
+  ],
+  ans:1
+},
+
+{
+  q:"The fundamental accounting equation is:",
+  opts:[
+    "Assets = Revenue − Expenses",
+    "Assets = Liabilities + Equity",
+    "Assets + Liabilities = Equity",
+    "Equity = Assets + Liabilities"
+  ],
+  ans:1
+},
+
+{
+  q:"Which is normally a current asset?",
+  opts:[
+    "Land",
+    "Long-term investment",
+    "Inventory",
+    "Patent with 15-year life"
+  ],
+  ans:2
+},
+
+{
+  q:"Accrued salary expense at year-end should be recorded as:",
+  opts:[
+    "Dr Salary Expense / Cr Salary Payable",
+    "Dr Salary Payable / Cr Salary Expense",
+    "Dr Cash / Cr Salary Expense",
+    "Dr Salary Expense / Cr Cash"
+  ],
+  ans:0
+},
+
+{
+  q:"Prepaid insurance decreases during the period because:",
+  opts:[
+    "It becomes a liability",
+    "Insurance coverage is consumed",
+    "Cash is received",
+    "Revenue is recognized"
+  ],
+  ans:1
+},
+
+{
+  q:"Which is a non-cash expense?",
+  opts:[
+    "Rent Expense",
+    "Salary Expense",
+    "Depreciation Expense",
+    "Electricity Expense"
+  ],
+  ans:2
+},
+
+{
+  q:"Sales are $500,000 and Cost of Goods Sold is $320,000. Gross profit is:",
+  opts:[
+    "$180,000",
+    "$320,000",
+    "$500,000",
+    "$820,000"
+  ],
+  ans:0
+},
+
+{
+  q:"Gross profit margin is:",
+  opts:[
+    "Gross Profit ÷ Sales",
+    "Net Profit ÷ Total Assets",
+    "Gross Profit ÷ Total Assets",
+    "Sales ÷ Gross Profit"
+  ],
+  ans:0
+},
+
+{
+  q:"The primary purpose of a bank reconciliation is to:",
+  opts:[
+    "Calculate depreciation",
+    "Compare company cash records with bank records and identify differences",
+    "Calculate gross profit",
+    "Prepare payroll"
+  ],
+  ans:1
+},
+
+{
+  q:"An outstanding cheque is a cheque that:",
+  opts:[
+    "Has been issued but not yet presented to the bank",
+    "Has been received but not recorded",
+    "Has been cancelled",
+    "Has been rejected by a supplier"
+  ],
+  ans:0
+},
+
+{
+  q:"Which error may not cause the trial balance to disagree?",
+  opts:[
+    "Debit recorded as credit",
+    "Transaction omitted entirely",
+    "$5,000 debit recorded as $500",
+    "Debit posted without corresponding credit"
+  ],
+  ans:1
+},
+
+{
+  q:"Fixed costs, within the relevant range, generally:",
+  opts:[
+    "Increase directly with volume",
+    "Remain constant in total despite activity changes",
+    "Are always zero at zero production",
+    "Always decrease as production increases"
+  ],
+  ans:1
+},
+
+{
+  q:"Variable cost per unit generally:",
+  opts:[
+    "Remains constant within the relevant range",
+    "Increases with total production",
+    "Equals fixed cost per unit",
+    "Is always zero at zero production"
+  ],
+  ans:0
+},
+
+{
+  q:"Selling price is $50 and variable cost is $30. Contribution margin per unit is:",
+  opts:[
+    "$20",
+    "$30",
+    "$50",
+    "$80"
+  ],
+  ans:0
+},
+
+{
+  q:"Fixed costs are $100,000 and contribution margin per unit is $25. Break-even volume is:",
+  opts:[
+    "2,500 units",
+    "4,000 units",
+    "5,000 units",
+    "25,000 units"
+  ],
+  ans:1
+},
+
+{
+  q:"Contribution margin equals:",
+  opts:[
+    "Sales − Fixed Costs",
+    "Sales − Variable Costs",
+    "Sales − Total Costs",
+    "Gross Profit − Fixed Costs"
+  ],
+  ans:1
+},
+
+{
+  q:"Actual sales are $600,000 and break-even sales are $450,000. Margin of safety is:",
+  opts:[
+    "$150,000",
+    "$450,000",
+    "$600,000",
+    "$1,050,000"
+  ],
+  ans:0
+},
+
+{
+  q:"Which is most likely a direct cost for a furniture manufacturer?",
+  opts:[
+    "Factory rent",
+    "Factory manager salary",
+    "Wood used in a specific table",
+    "Security expense"
+  ],
+  ans:2
+},
+
+{
+  q:"Which budgeting approach requires each expense to be justified from zero?",
+  opts:[
+    "Incremental Budgeting",
+    "Flexible Budgeting",
+    "Zero-Based Budgeting",
+    "Rolling Budgeting"
+  ],
+  ans:2
+},
+
+{
+  q:"Which control best demonstrates segregation of duties?",
+  opts:[
+    "One employee handles cash and performs bank reconciliation",
+    "One employee approves and pays suppliers",
+    "One employee authorizes payments while another processes them",
+    "An accountant approves their own journal entries"
+  ],
+  ans:2
+},
+
+{
+  q:"Which Excel formula correctly totals cells B2 through B20?",
+  opts:[
+    "=ADD(B2:B20)",
+    "=TOTAL(B2:B20)",
+    "=SUM(B2:B20)",
+    "=COUNT(B2:B20)"
+  ],
+  ans:2
 }
+
+];
+
+
+/* =====================================================
+   EXCEL TASKS
+===================================================== */
+
+const tasks = [
+
+"Calculate TOTAL SALES.",
+
+"Calculate TOTAL COST.",
+
+"Calculate AVERAGE SALES per invoice.",
+
+"Calculate TOTAL SALES for the Sales department using SUMIF.",
+
+"Count invoices from the Admin department using COUNTIF.",
+
+"Calculate TOTAL GROSS PROFIT (Sales − Cost).",
+
+"Using 5% VAT, calculate VAT on TOTAL SALES.",
+
+"Calculate TOTAL SALES including 5% VAT.",
+
+"Use IF to show Profit if Total Gross Profit > 250,000, otherwise Review.",
+
+"Calculate the highest single invoice Sales using MAX."
+
+];
+
+
+/* =====================================================
+   VARIABLES
+===================================================== */
+
+let name = "";
+
+let mcqIdx = 0;
+
+let answers = [];
+
+let qTimes = [];
+
+let qStart = 0;
+
+let mcqStart = 0;
+
+let overallInt = null;
+
+let qInt = null;
+
+let excelStart = 0;
+
+let excelInt = null;
+
+let finished = false;
+
+
+/* =====================================================
+   FORMAT TIME
+===================================================== */
+
+function fmt(seconds){
+
+  seconds = Math.max(
+    0,
+    Math.ceil(seconds)
+  );
+
+  return String(
+    Math.floor(seconds / 60)
+  ).padStart(2,"0")
+  + ":"
+  + String(
+    seconds % 60
+  ).padStart(2,"0");
+}
+
+
+/* =====================================================
+   START TEST
+===================================================== */
 
 function startTest(){
-  const name=document.getElementById('candidateName').value.trim();
-  if(!name){alert('Please enter candidate name.');return;}
-  document.getElementById('candidateDisplay').textContent=name;
-  document.getElementById('start').classList.add('hidden');
-  document.getElementById('test').classList.remove('hidden');
-  testStart=Date.now(); idx=0; answers=[]; times=[]; finished=false; submitted=false;
-  showQuestion();
-  overallInterval=setInterval(updateOverall,250);
+
+  name =
+    document
+    .getElementById("candidateName")
+    .value
+    .trim();
+
+  if(!name){
+
+    alert("Please enter candidate name.");
+
+    return;
+  }
+
+  document
+    .getElementById("start")
+    .classList
+    .add("hidden");
+
+  document
+    .getElementById("mcq")
+    .classList
+    .remove("hidden");
+
+  document
+    .getElementById("cand1")
+    .textContent = name;
+
+  mcqStart = Date.now();
+
+  mcqIdx = 0;
+
+  answers = [];
+
+  qTimes = [];
+
+  finished = false;
+
+  showQ();
+
+  overallInt =
+    setInterval(
+      updateOverall,
+      250
+    );
 }
+
+
+/* =====================================================
+   OVERALL 30 MINUTE TIMER
+===================================================== */
 
 function updateOverall(){
-  const elapsed=(Date.now()-testStart)/1000;
-  const remain=1800-elapsed;
-  document.getElementById('overallTimer').textContent=fmt(remain);
-  if(remain<=0) finishTest(true);
+
+  const remain =
+    1800 -
+    (
+      Date.now() -
+      mcqStart
+    ) / 1000;
+
+  document
+    .getElementById("overall")
+    .textContent = fmt(remain);
+
+  if(remain <= 0){
+
+    finishMCQ(true);
+
+  }
 }
 
-function showQuestion(){
-  if(idx>=questions.length){finishTest(false);return;}
-  qStart=Date.now();
-  document.getElementById('qCounter').textContent=`Question ${idx+1} of ${questions.length}`;
-  document.getElementById('progressBar').style.width=((idx)/questions.length*100)+'%';
-  document.getElementById('questionText').textContent=(idx+1)+'. '+questions[idx].q;
-  const box=document.getElementById('options'); box.innerHTML='';
-  questions[idx].opts.forEach((o,i)=>{
-    const label=document.createElement('label'); label.className='option';
-    label.innerHTML=`<input type="radio" name="answer" value="${i}"> ${String.fromCharCode(65+i)}. ${o}`;
-    box.appendChild(label);
-  });
-  clearInterval(qInterval);
-  qInterval=setInterval(updateQuestion,200);
-  updateQuestion();
+
+/* =====================================================
+   DISPLAY MCQ
+===================================================== */
+
+function showQ(){
+
+  qStart = Date.now();
+
+  document
+    .getElementById("mcqCounter")
+    .textContent =
+      "Question "
+      + (mcqIdx + 1)
+      + " of 30";
+
+  document
+    .getElementById("mcqBar")
+    .style.width =
+      (mcqIdx / 30 * 100)
+      + "%";
+
+  document
+    .getElementById("qText")
+    .textContent =
+      (mcqIdx + 1)
+      + ". "
+      + questions[mcqIdx].q;
+
+  const box =
+    document.getElementById("opts");
+
+  box.innerHTML = "";
+
+  questions[mcqIdx]
+    .opts
+    .forEach(
+      function(option, i){
+
+        box.innerHTML +=
+
+        `<label class="option">
+
+          <input
+            type="radio"
+            name="ans"
+            value="${i}"
+          >
+
+          ${String.fromCharCode(65+i)}.
+          ${option}
+
+        </label>`;
+
+      }
+    );
+
+  clearInterval(qInt);
+
+  qInt =
+    setInterval(
+      updateQ,
+      200
+    );
+
+  updateQ();
 }
 
-function updateQuestion(){
-  const used=(Date.now()-qStart)/1000;
-  const remain=60-used;
-  document.getElementById('questionTimer').textContent=fmt(remain);
-  if(remain<=0) nextQuestion(true);
+
+/* =====================================================
+   QUESTION TIMER
+===================================================== */
+
+function updateQ(){
+
+  const remain =
+    60 -
+    (
+      Date.now() -
+      qStart
+    ) / 1000;
+
+  document
+    .getElementById("qTimer")
+    .textContent =
+      fmt(remain);
+
+  if(remain <= 0){
+
+    nextQ();
+
+  }
 }
 
-function nextQuestion(timeout=false){
-  if(finished)return;
-  const used=Math.min(60,(Date.now()-qStart)/1000);
-  const selected=document.querySelector('input[name="answer"]:checked');
-  answers.push(selected?Number(selected.value):null);
-  times.push(used);
-  clearInterval(qInterval);
-  idx++;
-  if(idx<questions.length) showQuestion(); else finishTest(false);
-}
 
-function finishTest(auto){
-  if(finished)return;
-  finished=true;
-  clearInterval(qInterval); clearInterval(overallInterval);
+/* =====================================================
+   SAVE CURRENT QUESTION
+===================================================== */
 
-  if(idx<questions.length){
-    const used=Math.min(60,(Date.now()-qStart)/1000);
-    answers.push(null); times.push(used);
-    while(answers.length<questions.length) answers.push(null);
-    while(times.length<questions.length) times.push(0);
+function nextQ(){
+
+  if(finished){
+    return;
   }
 
-  const score=answers.reduce((s,a,i)=>s+(a===questions[i].ans?1:0),0);
-  const total=Math.min(1800,(Date.now()-testStart)/1000);
-  const name=document.getElementById('candidateName').value.trim();
-  const completion=auto?'Automatically ended — 30 minute limit reached.':'Completed';
+  const selected =
+    document.querySelector(
+      'input[name="ans"]:checked'
+    );
 
-  document.getElementById('test').classList.add('hidden');
-  document.getElementById('result').classList.remove('hidden');
-  document.getElementById('resultName').textContent=name;
-  document.getElementById('score').textContent=score;
-  document.getElementById('totalTime').textContent=fmt(total);
-  document.getElementById('completion').textContent=completion;
+  const answer =
+    selected
+      ? Number(selected.value)
+      : null;
 
-  const rows=document.getElementById('resultRows'); rows.innerHTML='';
-  for(let i=0;i<questions.length;i++){
-    const correct=answers[i]===questions[i].ans;
-    const tr=document.createElement('tr');
-    tr.innerHTML=`<td>${i+1}</td><td>${answers[i]===null?'Not Answered':(correct?'Correct':'Incorrect')}</td><td>${times[i]?times[i].toFixed(1):'0.0'} sec</td><td>${correct?1:0}</td>`;
-    rows.appendChild(tr);
+  answers.push(answer);
+
+  qTimes.push(
+    Math.min(
+      60,
+      (Date.now() - qStart) / 1000
+    )
+  );
+
+  clearInterval(qInt);
+
+  mcqIdx++;
+
+  if(mcqIdx < 30){
+
+    showQ();
+
+  }else{
+
+    finishMCQ(false);
+
   }
-
-  saveResult(name,score,total,completion);
 }
 
-async function saveResult(name,score,total,completion){
-  if(submitted)return;
-  submitted=true;
-  const status=document.getElementById('saveStatus');
-  status.className='status saving';
-  status.textContent='Saving result to Google Sheet...';
 
-  const qMarks=questions.map((q,i)=>answers[i]===q.ans?1:0);
-  const qTimes=times.map(t=>Number(t.toFixed(1)));
+/* =====================================================
+   END TEST 1
+===================================================== */
 
-  const form=new URLSearchParams();
-  form.append('name',name);
-  form.append('score',String(score));
-  form.append('total','30');
-  form.append('totalTime',fmt(total));
-  form.append('completion',completion);
-  form.append('qMarks',JSON.stringify(qMarks));
-  form.append('qTimes',JSON.stringify(qTimes));
+function finishMCQ(autoEnd){
+
+  if(finished){
+    return;
+  }
+
+  finished = true;
+
+  clearInterval(qInt);
+
+  clearInterval(overallInt);
+
+
+  /*
+    If 30-minute timer ends while
+    candidate is inside a question,
+    save that question's time.
+  */
+
+  if(
+    autoEnd &&
+    mcqIdx < 30 &&
+    answers.length === mcqIdx
+  ){
+
+    answers.push(null);
+
+    qTimes.push(
+      Math.min(
+        60,
+        (Date.now() - qStart) / 1000
+      )
+    );
+
+  }
+
+
+  while(answers.length < 30){
+
+    answers.push(null);
+
+  }
+
+
+  while(qTimes.length < 30){
+
+    qTimes.push(0);
+
+  }
+
+
+  document
+    .getElementById("mcq")
+    .classList
+    .add("hidden");
+
+  document
+    .getElementById("excel")
+    .classList
+    .remove("hidden");
+
+  document
+    .getElementById("cand2")
+    .textContent = name;
+
+
+  buildTasks();
+
+
+  excelStart = Date.now();
+
+  excelInt =
+    setInterval(
+      updateExcel,
+      250
+    );
+
+}
+
+
+/* =====================================================
+   BUILD EXCEL TASKS
+===================================================== */
+
+function buildTasks(){
+
+  document
+    .getElementById("tasks")
+    .innerHTML =
+
+    tasks
+      .map(
+        function(task, i){
+
+          return `
+
+          <div class="task">
+
+            <b>
+              ${i + 1}.
+              ${task}
+            </b>
+
+            <input
+              id="task${i}"
+              placeholder="Enter result or Excel formula"
+            >
+
+          </div>
+
+          `;
+
+        }
+      )
+      .join("");
+
+}
+
+
+/* =====================================================
+   EXCEL TIMER
+===================================================== */
+
+function updateExcel(){
+
+  const remain =
+    300 -
+    (
+      Date.now() -
+      excelStart
+    ) / 1000;
+
+  document
+    .getElementById("excelTimer")
+    .textContent =
+      fmt(remain);
+
+  if(remain <= 0){
+
+    finishExcel(true);
+
+  }
+}
+
+
+/* =====================================================
+   NORMALIZE INPUT
+===================================================== */
+
+function norm(value){
+
+  return String(value || "")
+    .trim()
+    .toLowerCase()
+    .replace(/[$,\s]/g,"");
+
+}
+
+
+/* =====================================================
+   GRADE EXCEL TEST
+===================================================== */
+
+function gradeExcel(){
+
+  const expected = [
+
+    "898000",
+
+    "550000",
+
+    "89800",
+
+    "483000",
+
+    "3",
+
+    "348000",
+
+    "44900",
+
+    "942900",
+
+    "profit",
+
+    "150000"
+
+  ];
+
+
+  const formulaKeys = [
+
+    "sum",
+
+    "sum",
+
+    "average",
+
+    "sumif",
+
+    "countif",
+
+    "sum",
+
+    "5%",
+
+    "+",
+
+    "if",
+
+    "max"
+
+  ];
+
+
+  let score = 0;
+
+  let details = [];
+
+
+  for(
+    let i = 0;
+    i < 10;
+    i++
+  ){
+
+    const value =
+      norm(
+        document
+        .getElementById("task" + i)
+        .value
+      );
+
+
+    let correct = false;
+
+
+    /*
+      Q9 checks for Profit.
+    */
+
+    if(i === 8){
+
+      correct =
+        value.includes("profit")
+        ||
+        value.includes("if");
+
+    }
+
+    else{
+
+      correct =
+        value === expected[i]
+        ||
+        value.includes(formulaKeys[i]);
+
+    }
+
+
+    if(correct){
+
+      score++;
+
+    }
+
+
+    details.push(correct);
+
+  }
+
+
+  return [
+    score,
+    details
+  ];
+
+}
+
+
+/* =====================================================
+   FINISH EXCEL
+===================================================== */
+
+function finishExcel(autoEnd = false){
+
+  clearInterval(excelInt);
+
+
+  const excelTime =
+    Math.min(
+      300,
+      (
+        Date.now() -
+        excelStart
+      ) / 1000
+    );
+
+
+  const result =
+    gradeExcel();
+
+
+  const excelScore =
+    result[0];
+
+  const excelDetails =
+    result[1];
+
+
+  const mcqScore =
+    answers.reduce(
+      function(total, answer, i){
+
+        return total +
+          (
+            answer === questions[i].ans
+              ? 1
+              : 0
+          );
+
+      },
+      0
+    );
+
+
+  const mcqTime =
+    Math.min(
+      1800,
+      (
+        excelStart -
+        mcqStart
+      ) / 1000
+    );
+
+
+  const total =
+    mcqScore +
+    excelScore;
+
+
+  document
+    .getElementById("excel")
+    .classList
+    .add("hidden");
+
+  document
+    .getElementById("result")
+    .classList
+    .remove("hidden");
+
+
+  document
+    .getElementById("rName")
+    .textContent = name;
+
+  document
+    .getElementById("rMcq")
+    .textContent = mcqScore;
+
+  document
+    .getElementById("rExcel")
+    .textContent = excelScore;
+
+  document
+    .getElementById("rTotal")
+    .textContent = total;
+
+  document
+    .getElementById("rMcqTime")
+    .textContent =
+      fmt(mcqTime);
+
+  document
+    .getElementById("rExcelTime")
+    .textContent =
+      fmt(excelTime);
+
+  document
+    .getElementById("rCompletion")
+    .textContent =
+      autoEnd
+        ? "Excel time limit reached"
+        : "Completed";
+
+
+  document
+    .getElementById("breakdown")
+    .innerHTML =
+
+      "<h3>Excel Task Breakdown</h3>" +
+
+      excelDetails
+        .map(
+          function(correct, i){
+
+            return (
+              "Task "
+              + (i + 1)
+              + ": "
+              + (
+                correct
+                  ? "Correct"
+                  : "Incorrect"
+              )
+            );
+
+          }
+        )
+        .join("<br>");
+
+
+  sendResult(
+    mcqScore,
+    excelScore,
+    total,
+    mcqTime,
+    excelTime,
+    autoEnd,
+    excelDetails
+  );
+
+}
+
+
+/* =====================================================
+   SEND RESULT TO GOOGLE SHEET
+===================================================== */
+
+async function sendResult(
+  mcqScore,
+  excelScore,
+  total,
+  mcqTime,
+  excelTime,
+  autoEnd,
+  excelDetails
+){
+
+  const status =
+    document.getElementById(
+      "saveStatus"
+    );
+
+
+  const payload =
+    new URLSearchParams();
+
+
+  payload.append(
+    "name",
+    name
+  );
+
+
+  payload.append(
+    "mcqScore",
+    mcqScore
+  );
+
+
+  payload.append(
+    "excelScore",
+    excelScore
+  );
+
+
+  payload.append(
+    "totalScore",
+    total
+  );
+
+
+  payload.append(
+    "mcqTotal",
+    "30"
+  );
+
+
+  payload.append(
+    "excelTotal",
+    "10"
+  );
+
+
+  payload.append(
+    "grandTotal",
+    "40"
+  );
+
+
+  payload.append(
+    "mcqTime",
+    fmt(mcqTime)
+  );
+
+
+  payload.append(
+    "excelTime",
+    fmt(excelTime)
+  );
+
+
+  payload.append(
+    "completion",
+    autoEnd
+      ? "Excel time limit reached"
+      : "Completed"
+  );
+
+
+  /*
+    Q1-Q30 Marks
+  */
+
+  payload.append(
+    "mcqMarks",
+    JSON.stringify(
+      questions.map(
+        function(q, i){
+
+          return (
+            answers[i] === q.ans
+              ? 1
+              : 0
+          );
+
+        }
+      )
+    )
+  );
+
+
+  /*
+    Q1-Q30 Times
+  */
+
+  payload.append(
+    "mcqTimes",
+    JSON.stringify(
+      qTimes.map(
+        function(time){
+
+          return Number(
+            time.toFixed(1)
+          );
+
+        }
+      )
+    )
+  );
+
+
+  /*
+    Excel Task 1-10 Marks
+  */
+
+  payload.append(
+    "excelMarks",
+    JSON.stringify(
+      excelDetails.map(
+        function(correct){
+
+          return correct
+            ? 1
+            : 0;
+
+        }
+      )
+    )
+  );
+
 
   try{
-    await fetch(WEB_APP_URL,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
-      body:form.toString(),
-      keepalive:true
-    });
-    status.className='status ok';
-    status.textContent='Result sent to Google Sheet. Please check the Admin Sheet.';
-  }catch(err){
-    console.error(err);
-    status.className='status err';
-    status.textContent='Could not send result to Google Sheet. Please contact the administrator.';
+
+    status.className =
+      "status saving";
+
+    status.textContent =
+      "Saving final result to Google Sheet...";
+
+
+    await fetch(
+      WEB_APP_URL,
+      {
+        method:"POST",
+
+        mode:"no-cors",
+
+        headers:{
+          "Content-Type":
+            "application/x-www-form-urlencoded;charset=UTF-8"
+        },
+
+        body:
+          payload.toString(),
+
+        keepalive:true
+
+      }
+    );
+
+
+    status.className =
+      "status ok";
+
+    status.textContent =
+      "Final result sent to Google Sheet.";
+
   }
+
+  catch(error){
+
+    console.error(error);
+
+    status.className =
+      "status err";
+
+    status.textContent =
+      "Could not send result to Google Sheet.";
+
+  }
+
 }
+
 </script>
+
 </body>
 </html>
