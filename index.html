@@ -24,6 +24,11 @@ th{background:#eef2f5}
 .typing-target{padding:18px;background:#f7f9fb;border:1px solid #dbe1e6;border-radius:10px;line-height:1.8;font-size:18px;margin:12px 0}
 .typing-target.mm{font-family:"Noto Sans Myanmar","Myanmar Text",sans-serif;font-size:20px}
 .typing-input{min-height:160px;resize:vertical;font-size:18px;line-height:1.7}
+.comment-box{width:100%;min-height:150px;padding:13px;box-sizing:border-box;border:1px solid #cfd8dc;border-radius:8px;font-family:inherit;font-size:16px;line-height:1.6;resize:vertical}
+.comment-panel{margin-top:18px;padding:18px;border-radius:10px;border:1px solid #dbe1e6}
+.system-comment{background:#f4f8fc}
+.finance-comment{background:#fffaf0}
+
 @media print{.no-print{display:none!important}body{background:#fff}.card{box-shadow:none}}
 </style>
 </head>
@@ -355,7 +360,17 @@ th{background:#eef2f5}
       <span id="rCompletion"></span>
     </p>
 
-    <div id="saveStatus" class="status saving">
+    <div class="comment-panel system-comment">
+      <h2>System Review &amp; Comment</h2>
+      <p id="systemCommentText"></p>
+    </div>
+    <div class="comment-panel system-comment">
+      <h2>System Review &amp; Comment</h2>
+      <p id="systemCommentText"></p>
+    </div>
+
+    <div id="saveStatus"
+ class="status saving">
       Saving final result to Google Sheet...
     </div>
 
@@ -399,6 +414,8 @@ let savedMcqTime = 0;
 let savedExcelTime = 0;
 let savedExcelDetails = [];
 let excelTimedOut = false;
+let currentResultId = "";
+let currentSystemComment = "";
 
 function fmt(seconds){
   seconds = Math.max(0, Math.ceil(seconds));
@@ -942,6 +959,69 @@ function finishTyping(autoEnd){
    RESULT
 ========================= */
 
+function getSystemComment(finalScore){
+
+  const total = Number(finalScore || 0);
+
+  const mcq =
+    Number(savedMcqScore || 0);
+
+  const excel =
+    Number(savedExcelScore || 0);
+
+  const typing =
+    Math.max(
+      0,
+      total - mcq - excel
+    );
+
+  const percent =
+    (total / 45) * 100;
+
+  const weakSections = [];
+
+  if(mcq < 18){
+    weakSections.push("Section 1 – Accounting MCQ");
+  }
+
+  if(excel < 6){
+    weakSections.push("Section 2 – Excel Practical Test");
+  }
+
+  if(typing < 3){
+    weakSections.push("Section 3 – Typing Test");
+  }
+
+  let overall;
+
+  if(percent >= 80){
+    overall =
+      "Overall performance is strong, with a good level of competence across the three assessment sections.";
+  }else if(percent >= 70){
+    overall =
+      "Overall performance is good, with a satisfactory level of competence across the three assessment sections.";
+  }else if(percent >= 60){
+    overall =
+      "Overall performance is satisfactory, with a basic level of competence demonstrated across the three assessment sections.";
+  }else if(percent >= 50){
+    overall =
+      "Overall performance is at a basic level. Further review of the assessment results is recommended.";
+  }else{
+    overall =
+      "The overall assessment result indicates that further review and development are required.";
+  }
+
+  if(weakSections.length > 0){
+    return overall +
+      " Areas requiring further review: " +
+      weakSections.join(", ") +
+      ".";
+  }
+
+  return overall +
+    " No major weakness was identified from the score thresholds used in this review.";
+}
+
 function showResult(
   mcqScore,
   excelScore,
@@ -964,6 +1044,20 @@ function showResult(
 ){
 
   document.getElementById("result").classList.remove("hidden");
+
+  if(!currentResultId){
+    currentResultId =
+      "ACC-" +
+      Date.now() +
+      "-" +
+      Math.random().toString(36).slice(2,8).toUpperCase();
+  }
+
+  currentSystemComment =
+    getSystemComment(finalScore);
+
+  document.getElementById("systemCommentText").textContent =
+    currentSystemComment;
 
   document.getElementById("rName").textContent = name;
   document.getElementById("rMcq").textContent = mcqScore.toFixed(0);
@@ -1070,6 +1164,9 @@ async function sendResult(
 
   const payload = new URLSearchParams();
 
+  payload.append("action", "saveResult");
+  payload.append("resultId", currentResultId);
+  payload.append("systemComment", currentSystemComment);
   payload.append("name", name);
   payload.append("mcqScore", mcqScore);
   payload.append("excelScore", excelScore);
