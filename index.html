@@ -23,6 +23,8 @@ button{border:0;border-radius:8px;padding:12px 18px;font-size:15px;cursor:pointe
 .result-table th,.result-table td{border:1px solid #d8dde2;padding:8px;text-align:center}
 .result-table th{background:#eef2f5}
 .badge{display:inline-block;padding:5px 9px;border-radius:15px;background:#eef2f5}
+.status{padding:10px;border-radius:8px;margin-top:12px}
+.status.saving{background:#fff8e1} .status.ok{background:#e8f5e9} .status.err{background:#ffebee}
 @media print {
  body{background:white}
  .no-print{display:none!important}
@@ -69,6 +71,7 @@ button{border:0;border-radius:8px;padding:12px 18px;font-size:15px;cursor:pointe
       <p><b>Total Score:</b> <span id="score"></span> / 30</p>
       <p><b>Total Time:</b> <span id="totalTime"></span></p>
       <p><b>Completion:</b> <span id="completion"></span></p>
+      <div id="saveStatus" class="status saving">Saving result to Google Sheet...</div>
       <hr>
       <table class="result-table">
         <thead><tr><th>Q</th><th>Result</th><th>Time Used</th><th>Mark</th></tr></thead>
@@ -85,29 +88,35 @@ button{border:0;border-radius:8px;padding:12px 18px;font-size:15px;cursor:pointe
 </div>
 
 <script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzAouQ021PDCTaolOQLiQTQxRCXgp1HjJsEoxiwsAerA0jUyu76dci6jaKAV-3kpL1vLQ/exec";
 const questions = [{"q": "Which account normally has a credit balance?", "opts": ["Accounts Receivable", "Prepaid Insurance", "Accounts Payable", "Equipment"], "ans": 2}, {"q": "A company buys office equipment for $12,000 cash. Which entry is correct?", "opts": ["Dr Cash / Cr Equipment", "Dr Equipment / Cr Cash", "Dr Expense / Cr Cash", "Dr Equipment / Cr Revenue"], "ans": 1}, {"q": "Cash received in advance from a customer for services to be provided next month is initially recorded as:", "opts": ["Revenue", "Accounts Receivable", "Unearned Revenue", "Expense"], "ans": 2}, {"q": "The main purpose of an adjusting entry is to:", "opts": ["Close temporary accounts", "Recognize revenues and expenses in the proper period", "Record only cash transactions", "Eliminate all errors"], "ans": 1}, {"q": "Accounts Receivable is $100,000 and estimated uncollectible accounts are 3%. Required allowance is:", "opts": ["$300", "$3,000", "$30,000", "$97,000"], "ans": 1}, {"q": "If ending inventory is understated, current-year gross profit will generally be:", "opts": ["Overstated", "Understated", "Unchanged", "Doubled"], "ans": 1}, {"q": "Under FIFO, when prices are rising, the oldest inventory costs are generally assigned to:", "opts": ["Ending inventory", "Cost of Goods Sold", "Accounts Payable", "Revenue"], "ans": 1}, {"q": "A machine costs $50,000, residual value $5,000, useful life 5 years. Straight-line annual depreciation is:", "opts": ["$9,000", "$10,000", "$11,000", "$45,000"], "ans": 0}, {"q": "Which statement reports assets, liabilities and equity at a specific date?", "opts": ["Income Statement", "Cash Flow Statement", "Statement of Financial Position", "Statement of Changes in Equity"], "ans": 2}, {"q": "Which transaction increases both an asset and a liability?", "opts": ["Paying accounts payable", "Purchasing equipment on credit", "Collecting a receivable", "Paying salaries"], "ans": 1}, {"q": "The fundamental accounting equation is:", "opts": ["Assets = Revenue − Expenses", "Assets = Liabilities + Equity", "Assets + Liabilities = Equity", "Equity = Assets + Liabilities"], "ans": 1}, {"q": "Which is normally a current asset?", "opts": ["Land", "Long-term investment", "Inventory", "Patent with 15-year life"], "ans": 2}, {"q": "Accrued salary expense at year-end should be recorded as:", "opts": ["Dr Salary Expense / Cr Salary Payable", "Dr Salary Payable / Cr Salary Expense", "Dr Cash / Cr Salary Expense", "Dr Salary Expense / Cr Cash"], "ans": 0}, {"q": "Prepaid insurance decreases during the period because:", "opts": ["It becomes a liability", "Insurance coverage is consumed", "Cash is received", "Revenue is recognized"], "ans": 1}, {"q": "Which is a non-cash expense?", "opts": ["Rent Expense", "Salary Expense", "Depreciation Expense", "Electricity Expense"], "ans": 2}, {"q": "Sales are $500,000 and Cost of Goods Sold is $320,000. Gross profit is:", "opts": ["$180,000", "$320,000", "$500,000", "$820,000"], "ans": 0}, {"q": "Gross profit margin is:", "opts": ["Gross Profit ÷ Sales", "Net Profit ÷ Total Assets", "Gross Profit ÷ Total Assets", "Sales ÷ Gross Profit"], "ans": 0}, {"q": "The primary purpose of a bank reconciliation is to:", "opts": ["Calculate depreciation", "Compare company cash records with bank records and identify differences", "Calculate gross profit", "Prepare payroll"], "ans": 1}, {"q": "An outstanding cheque is a cheque that:", "opts": ["Has been issued but not yet presented to the bank", "Has been received but not recorded", "Has been cancelled", "Has been rejected by a supplier"], "ans": 0}, {"q": "Which error may not cause the trial balance to disagree?", "opts": ["Debit recorded as credit", "Transaction omitted entirely", "$5,000 debit recorded as $500", "Debit posted without corresponding credit"], "ans": 1}, {"q": "Fixed costs, within the relevant range, generally:", "opts": ["Increase directly with volume", "Remain constant in total despite activity changes", "Are always zero at zero production", "Always decrease as production increases"], "ans": 1}, {"q": "Variable cost per unit generally:", "opts": ["Remains constant within the relevant range", "Increases with total production", "Equals fixed cost per unit", "Is always zero at zero production"], "ans": 0}, {"q": "Selling price is $50 and variable cost is $30. Contribution margin per unit is:", "opts": ["$20", "$30", "$50", "$80"], "ans": 0}, {"q": "Fixed costs are $100,000 and contribution margin per unit is $25. Break-even volume is:", "opts": ["2,500 units", "4,000 units", "5,000 units", "25,000 units"], "ans": 1}, {"q": "Contribution margin equals:", "opts": ["Sales − Fixed Costs", "Sales − Variable Costs", "Sales − Total Costs", "Gross Profit − Fixed Costs"], "ans": 1}, {"q": "Actual sales are $600,000 and break-even sales are $450,000. Margin of safety is:", "opts": ["$150,000", "$450,000", "$600,000", "$1,050,000"], "ans": 0}, {"q": "Which is most likely a direct cost for a furniture manufacturer?", "opts": ["Factory rent", "Factory manager salary", "Wood used in a specific table", "Security expense"], "ans": 2}, {"q": "Which budgeting approach requires each expense to be justified from zero?", "opts": ["Incremental Budgeting", "Flexible Budgeting", "Zero-Based Budgeting", "Rolling Budgeting"], "ans": 2}, {"q": "Which control best demonstrates segregation of duties?", "opts": ["One employee handles cash and performs bank reconciliation", "One employee approves and pays suppliers", "One employee authorizes payments while another processes them", "An accountant approves their own journal entries"], "ans": 2}, {"q": "Which Excel formula correctly totals cells B2 through B20?", "opts": ["=ADD(B2:B20)", "=TOTAL(B2:B20)", "=SUM(B2:B20)", "=COUNT(B2:B20)"], "ans": 2}];
-let idx=0, answers=[], times=[], qStart=0, testStart=0, qInterval=null, overallInterval=null, finished=false;
+
+let idx=0, answers=[], times=[], qStart=0, testStart=0;
+let qInterval=null, overallInterval=null, finished=false, submitted=false;
 
 function fmt(sec) {
   sec=Math.max(0,Math.ceil(sec));
   return String(Math.floor(sec/60)).padStart(2,'0')+':'+String(sec%60).padStart(2,'0');
 }
+
 function startTest(){
   const name=document.getElementById('candidateName').value.trim();
   if(!name){alert('Please enter candidate name.');return;}
   document.getElementById('candidateDisplay').textContent=name;
   document.getElementById('start').classList.add('hidden');
   document.getElementById('test').classList.remove('hidden');
-  testStart=Date.now(); idx=0; answers=[]; times=[];
+  testStart=Date.now(); idx=0; answers=[]; times=[]; finished=false; submitted=false;
   showQuestion();
   overallInterval=setInterval(updateOverall,250);
 }
+
 function updateOverall(){
   const elapsed=(Date.now()-testStart)/1000;
   const remain=1800-elapsed;
   document.getElementById('overallTimer').textContent=fmt(remain);
   if(remain<=0) finishTest(true);
 }
+
 function showQuestion(){
   if(idx>=questions.length){finishTest(false);return;}
   qStart=Date.now();
@@ -124,12 +133,14 @@ function showQuestion(){
   qInterval=setInterval(updateQuestion,200);
   updateQuestion();
 }
+
 function updateQuestion(){
   const used=(Date.now()-qStart)/1000;
   const remain=60-used;
   document.getElementById('questionTimer').textContent=fmt(remain);
   if(remain<=0) nextQuestion(true);
 }
+
 function nextQuestion(timeout=false){
   if(finished)return;
   const used=Math.min(60,(Date.now()-qStart)/1000);
@@ -140,29 +151,75 @@ function nextQuestion(timeout=false){
   idx++;
   if(idx<questions.length) showQuestion(); else finishTest(false);
 }
+
 function finishTest(auto){
   if(finished)return;
-  finished=true; clearInterval(qInterval); clearInterval(overallInterval);
+  finished=true;
+  clearInterval(qInterval); clearInterval(overallInterval);
+
   if(idx<questions.length){
-    // If overall time expired while a question was active, record current question as unanswered.
     const used=Math.min(60,(Date.now()-qStart)/1000);
     answers.push(null); times.push(used);
-    idx=questions.length;
+    while(answers.length<questions.length) answers.push(null);
+    while(times.length<questions.length) times.push(0);
   }
+
   const score=answers.reduce((s,a,i)=>s+(a===questions[i].ans?1:0),0);
-  const total=(Date.now()-testStart)/1000;
+  const total=Math.min(1800,(Date.now()-testStart)/1000);
+  const name=document.getElementById('candidateName').value.trim();
+  const completion=auto?'Automatically ended — 30 minute limit reached.':'Completed';
+
   document.getElementById('test').classList.add('hidden');
   document.getElementById('result').classList.remove('hidden');
-  document.getElementById('resultName').textContent=document.getElementById('candidateName').value.trim();
+  document.getElementById('resultName').textContent=name;
   document.getElementById('score').textContent=score;
   document.getElementById('totalTime').textContent=fmt(total);
-  document.getElementById('completion').textContent=auto?'Automatically ended — 30 minute limit reached.':'Completed';
+  document.getElementById('completion').textContent=completion;
+
   const rows=document.getElementById('resultRows'); rows.innerHTML='';
   for(let i=0;i<questions.length;i++){
     const correct=answers[i]===questions[i].ans;
     const tr=document.createElement('tr');
     tr.innerHTML=`<td>${i+1}</td><td>${answers[i]===null?'Not Answered':(correct?'Correct':'Incorrect')}</td><td>${times[i]?times[i].toFixed(1):'0.0'} sec</td><td>${correct?1:0}</td>`;
     rows.appendChild(tr);
+  }
+
+  saveResult(name,score,total,completion);
+}
+
+async function saveResult(name,score,total,completion){
+  if(submitted)return;
+  submitted=true;
+  const status=document.getElementById('saveStatus');
+  status.className='status saving';
+  status.textContent='Saving result to Google Sheet...';
+
+  const qMarks=questions.map((q,i)=>answers[i]===q.ans?1:0);
+  const qTimes=times.map(t=>Number(t.toFixed(1)));
+
+  const form=new URLSearchParams();
+  form.append('name',name);
+  form.append('score',String(score));
+  form.append('total','30');
+  form.append('totalTime',fmt(total));
+  form.append('completion',completion);
+  form.append('qMarks',JSON.stringify(qMarks));
+  form.append('qTimes',JSON.stringify(qTimes));
+
+  try{
+    await fetch(WEB_APP_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},
+      body:form.toString(),
+      keepalive:true
+    });
+    status.className='status ok';
+    status.textContent='Result sent to Google Sheet. Please check the Admin Sheet.';
+  }catch(err){
+    console.error(err);
+    status.className='status err';
+    status.textContent='Could not send result to Google Sheet. Please contact the administrator.';
   }
 }
 </script>
