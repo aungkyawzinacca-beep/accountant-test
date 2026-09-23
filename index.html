@@ -40,7 +40,7 @@ th{background:#eef2f5}
   <input id="candidateName" placeholder="Enter candidate name" autocomplete="name">
   <br><br>
   <button class="primary" onclick="startTest()">Start Test</button>
-  <p class="muted">Each section ends automatically when its time limit is reached and the next section starts.</p>
+  <p class="muted">Finish early to move to the next section immediately, or wait for the timer to move automatically.</p>
 </div>
 
 <div id="mcq" class="hidden">
@@ -103,6 +103,10 @@ th{background:#eef2f5}
     <div id="myanmarTarget" class="typing-target mm"></div>
     <textarea id="myanmarInput" class="typing-input" placeholder="မြန်မာစာကို ဒီနေရာမှာ ရိုက်ပါ..." spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
     <p>Accuracy: <b id="myanmarAccuracy">0%</b></p>
+
+    <button class="primary" onclick="startEnglishTyping()">
+      Finish Myanmar & Continue
+    </button>
   </div>
 
   <div id="typingEnglish" class="card hidden">
@@ -111,6 +115,10 @@ th{background:#eef2f5}
     <div id="englishTarget" class="typing-target"></div>
     <textarea id="englishInput" class="typing-input" placeholder="Type the English text here..." spellcheck="false" autocapitalize="off" autocomplete="off" autocorrect="off"></textarea>
     <p>Accuracy: <b id="englishAccuracy">0%</b></p>
+
+    <button class="primary" onclick="finishTyping(false)">
+      Finish Typing & View Result
+    </button>
   </div>
 </div>
 
