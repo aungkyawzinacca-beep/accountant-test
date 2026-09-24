@@ -485,6 +485,14 @@ let testActive = false;
 
 function formatDate(d){ return new Intl.DateTimeFormat("en-GB", {year:"numeric",month:"2-digit",day:"2-digit"}).format(d); }
 function formatDateTime(d){ return new Intl.DateTimeFormat("en-GB", {year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(d); }
+function formatTimeOnly(d){ return new Intl.DateTimeFormat("en-GB", {hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(d); }
+function safeFileName(value){
+  return String(value || "Candidate").trim()
+    .replace(/[\\/:*?"<>|]/g,"_")
+    .replace(/\s+/g,"_")
+    .replace(/_+/g,"_")
+    .replace(/^_+|_+$/g,"") || "Candidate";
+}
 
 function fmt(seconds){
   seconds = Math.max(0, Math.ceil(seconds));
@@ -1556,14 +1564,14 @@ async function sendResult(
 }
 
 function downloadPDF(){
-  const candidate = safeFileName(document.getElementById("candidateName").value);
+  const candidate = safeFileName(document.getElementById("candidateName").value || name);
   const filename = candidate + "_Accountant_Test_Result.pdf";
   const oldTitle = document.title;
   document.title = filename.replace(/\.pdf$/i, "");
   const display = document.getElementById("pdfFileNameDisplay");
-  if(display) display.textContent = "PDF File Name: " + filename;
+  if(display) display.textContent = "PDF File Name: " + filename + " — choose Save as PDF in the print dialog.";
   window.print();
-  setTimeout(function(){ document.title = oldTitle; }, 1000);
+  setTimeout(function(){ document.title = oldTitle; }, 5000);
 }
 
 function loadSheetJS(){
