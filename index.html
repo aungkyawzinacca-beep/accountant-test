@@ -1447,10 +1447,6 @@ async function sendResult(
 
   payload.append("excelFileName", uploadedExcelName || "");
   payload.append("excelFileMime", uploadedExcelMime || "");
-  if(uploadedExcelBase64){
-    payload.append("excelFileBase64", uploadedExcelBase64);
-  }
-
   payload.append("myanmarText", actualMyanmarText || "");
   payload.append("englishText", actualEnglishText || "");
 
@@ -1476,6 +1472,8 @@ async function sendResult(
 
   try{
 
+    // STEP 1: Save the candidate result first.
+    // No Excel Base64 is included in this request.
     await fetch(
       WEB_APP_URL,
       {
@@ -1485,8 +1483,7 @@ async function sendResult(
           "Content-Type":
             "application/x-www-form-urlencoded;charset=UTF-8"
         },
-        body: payload.toString(),
-        keepalive:true
+        body: payload.toString()
       }
     );
 
@@ -1494,13 +1491,47 @@ async function sendResult(
     status.textContent =
       "Final result saved to Google Sheet.";
 
+    // STEP 2: Upload the Excel separately.
+    // If this fails, the candidate result is still safely recorded.
+    if(uploadedExcelBase64){
+      try{
+        const uploadPayload = new URLSearchParams();
+        uploadPayload.append("action","uploadExcel");
+        uploadPayload.append("resultId",currentResultId);
+        uploadPayload.append("name",name);
+        uploadPayload.append("fileName",uploadedExcelName || "accountant_test.xlsx");
+        uploadPayload.append("mimeType",uploadedExcelMime || "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet");
+        uploadPayload.append("fileBase64",uploadedExcelBase64);
+
+        await fetch(
+          WEB_APP_URL,
+          {
+            method:"POST",
+            mode:"no-cors",
+            headers:{
+              "Content-Type":
+                "application/x-www-form-urlencoded;charset=UTF-8"
+            },
+            body: uploadPayload.toString()
+          }
+        );
+
+        status.textContent =
+          "Final result saved. Excel upload submitted successfully.";
+      }catch(uploadError){
+        console.error(uploadError);
+        status.textContent =
+          "Final result saved to Google Sheet. Excel upload could not be confirmed.";
+      }
+    }
+
   }catch(error){
 
     console.error(error);
 
     status.className = "status err";
     status.textContent =
-      "Could not save the result to Google Sheet.";
+      "Could not save the result to Google Sheet. Please contact the administrator.";
 
   }
 }
