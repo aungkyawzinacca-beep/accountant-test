@@ -450,6 +450,10 @@ th{background:#eef2f5}
     <button class="primary" onclick="downloadPDF()">
       Download / Save Result PDF
     </button>
+    <button class="primary" onclick="emailResultPDF()" style="margin-left:8px;">
+      Email Result PDF
+    </button>
+    <div id="emailStatus" class="muted" style="margin-top:10px;"></div>
   </div>
 
 </div>
@@ -1708,6 +1712,105 @@ function downloadPDF(){
   if(display) display.textContent = "PDF File Name: " + filename + " — choose Save as PDF in the print dialog.";
   window.print();
   setTimeout(function(){ document.title = oldTitle; }, 5000);
+}
+
+
+function getEmailPdfText_(id){
+  const el = document.getElementById(id);
+  return el ? (el.innerText || el.textContent || "").trim() : "";
+}
+
+async function emailResultPDF(){
+  const status = document.getElementById("emailStatus");
+  const candidate = safeFileName(document.getElementById("candidateName").value || name);
+  const filename = candidate + "_Accountant_Test_Result.pdf";
+
+  if(status){
+    status.className = "status saving";
+    status.textContent = "Sending Result PDF to A Insurance Finance & Accounts Department...";
+  }
+
+  const payload = new URLSearchParams();
+  payload.append("action", "emailResultPDF");
+  payload.append("resultId", currentResultId || "");
+  payload.append("name", name || "");
+  payload.append("testDate", document.getElementById("rDate").textContent || "");
+  payload.append("startTime", document.getElementById("rStart").textContent || "");
+  payload.append("endTime", document.getElementById("rEnd").textContent || "");
+  payload.append("timeTaken", document.getElementById("rTimeTaken").textContent || "");
+  payload.append("mcqScore", document.getElementById("rMcq").textContent || "0");
+  payload.append("excelScore", document.getElementById("rExcel").textContent || "0");
+  payload.append("typingScore", document.getElementById("rTyping").textContent || "0");
+  payload.append("finalScore", document.getElementById("rTotal").textContent || "0");
+  payload.append("mcqTime", document.getElementById("rMcqTime").textContent || "");
+  payload.append("excelTime", document.getElementById("rExcelTime").textContent || "");
+  payload.append("typingTime", document.getElementById("rTypingTime").textContent || "");
+  payload.append("totalTime", document.getElementById("rTotalTime").textContent || "");
+  payload.append("completion", document.getElementById("rCompletion").textContent || "");
+
+  payload.append("mcqReview", getEmailPdfText_("mcqSectionReview"));
+  payload.append("excelReview", getEmailPdfText_("excelSectionReview"));
+  payload.append("typingReview", getEmailPdfText_("typingSectionReview"));
+  payload.append("systemComment", getEmailPdfText_("systemCommentText"));
+
+  payload.append("mcqAnswers", JSON.stringify(
+    questions.map(function(q,i){
+      return answers[i] === null || answers[i] === undefined
+        ? ""
+        : String.fromCharCode(65 + answers[i]);
+    })
+  ));
+
+  payload.append("excelActual", JSON.stringify(savedExcelActual || []));
+  payload.append("excelFileName", uploadedExcelName || "");
+
+  payload.append("myanmarText", actualMyanmarText || "");
+  payload.append("englishText", actualEnglishText || "");
+
+  payload.append("myanmarScore", document.getElementById("rMyanmar").textContent || "0");
+  payload.append("myanmarAccuracy", document.getElementById("rMyanmarAccuracy").textContent || "0%");
+  payload.append("myanmarTyped", document.getElementById("rMyanmarTyped").textContent || "0");
+  payload.append("myanmarCorrect", document.getElementById("rMyanmarCorrect").textContent || "0");
+  payload.append("myanmarErrors", document.getElementById("rMyanmarErrors").textContent || "0");
+  payload.append("myanmarMissing", document.getElementById("rMyanmarMissing").textContent || "0");
+  payload.append("myanmarCPM", document.getElementById("rMyanmarSpeed").textContent || "0 CPM");
+  payload.append("myanmarTime", document.getElementById("rMyanmarTime").textContent || "");
+
+  payload.append("englishScore", document.getElementById("rEnglish").textContent || "0");
+  payload.append("englishAccuracy", document.getElementById("rEnglishAccuracy").textContent || "0%");
+  payload.append("englishTyped", document.getElementById("rEnglishTyped").textContent || "0");
+  payload.append("englishCorrect", document.getElementById("rEnglishCorrect").textContent || "0");
+  payload.append("englishErrors", document.getElementById("rEnglishErrors").textContent || "0");
+  payload.append("englishMissing", document.getElementById("rEnglishMissing").textContent || "0");
+  payload.append("englishCPM", document.getElementById("rEnglishSpeed").textContent || "0 CPM");
+  payload.append("englishTime", document.getElementById("rEnglishTime").textContent || "");
+
+  payload.append("fileName", filename);
+
+  try{
+    // no-cors is intentional for Google Apps Script Web App.
+    await fetch(WEB_APP_URL, {
+      method:"POST",
+      mode:"no-cors",
+      headers:{
+        "Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"
+      },
+      body:payload.toString()
+    });
+
+    if(status){
+      status.className = "status ok";
+      status.textContent =
+        "Result PDF email request sent to aungkyaw.zin@ainsurance.com.mm.";
+    }
+  }catch(error){
+    console.error(error);
+    if(status){
+      status.className = "status err";
+      status.textContent =
+        "Could not send the Result PDF email. Please contact the administrator.";
+    }
+  }
 }
 
 function loadSheetJS(){
