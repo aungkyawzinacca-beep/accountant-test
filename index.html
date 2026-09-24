@@ -130,13 +130,33 @@ th{background:#eef2f5}
     >
   </div>
 
+  <div style="margin-top:16px;">
+    <label><b>One-Time Password (OTP)</b></label>
+
+    <input
+      id="candidateOtp"
+      type="password"
+      inputmode="numeric"
+      maxlength="6"
+      placeholder="Enter 6-digit OTP"
+      autocomplete="one-time-code"
+      style="width:100%;margin-top:8px;padding:13px;font-size:18px;box-sizing:border-box;letter-spacing:4px;text-align:center;"
+    >
+    <p class="muted" style="margin:8px 0 0;">
+      Please enter the one-time password provided by A Insurance Finance &amp; Accounts Department.
+      The OTP can be used only once and expires automatically.
+    </p>
+    <div id="otpStatus" class="status" style="display:none;margin-top:10px;"></div>
+  </div>
+
   <div style="text-align:center;margin-top:24px;">
     <button
+      id="startTestBtn"
       class="primary"
       onclick="startTest()"
-      style="min-width:160px;font-size:17px;"
+      style="min-width:180px;font-size:17px;"
     >
-      Start Test
+      Verify OTP &amp; Start Test
     </button>
   </div>
 
@@ -291,7 +311,7 @@ th{background:#eef2f5}
         <th>Typed</th>
         <th>Correct</th>
         <th>Errors</th>
-        <th>Speed</th>
+        <th>CPM (Characters/Min)</th>
         <th>Time</th>
       </tr>
 
@@ -319,6 +339,8 @@ th{background:#eef2f5}
     </table>
 
     <hr>
+
+    <div id="typingBreakdown"></div>
 
     <h2>Final Result</h2>
 
@@ -363,8 +385,6 @@ th{background:#eef2f5}
       <b>Completion:</b>
       <span id="rCompletion"></span>
     </p>
-
-    <div id="typingBreakdown"></div>
 
     <div class="comment-panel system-comment">
       <h2>System Review &amp; Comment</h2>
@@ -427,6 +447,8 @@ let actualEnglishText = "";
 let uploadedExcelBase64 = "";
 let uploadedExcelName = "";
 let uploadedExcelMime = "";
+let otpVerified = false;
+let otpRecordId = "";
 
 function formatDate(d){ return new Intl.DateTimeFormat("en-GB", {year:"numeric",month:"2-digit",day:"2-digit"}).format(d); }
 function formatDateTime(d){ return new Intl.DateTimeFormat("en-GB", {year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(d); }
@@ -489,7 +511,7 @@ function typingMetrics(target, typed, seconds){
 
   const errors = substitutions + omissions + extras;
   const accuracy = maxLength ? (correct / maxLength) * 100 : 0;
-  const cpm = (correct / seconds) * 60;
+  const cpm = (typed.length / seconds) * 60;
 
   return {
     typed: typed.length,
@@ -500,28 +522,114 @@ function typingMetrics(target, typed, seconds){
   };
 }
 
-function startTest(){
-  name = document.getElementById("candidateName").value.trim();
-  testStart = new Date();
-  currentResultId = "ACC-" + Date.now() + "-" + Math.random().toString(36).slice(2,8).toUpperCase();
+async function startTest(){
+  const candidateName = document.getElementById("candidateName").value.trim();
+  const otp = document.getElementById("candidateOtp").value.trim();
+  const btn = document.getElementById("startTestBtn");
+  const status = document.getElementById("otpStatus");
 
-  if(!name){
+  if(!candidateName){
     alert("Please enter candidate name.");
     return;
   }
 
-  document.getElementById("start").classList.add("hidden");
-  document.getElementById("mcq").classList.remove("hidden");
-  document.getElementById("cand1").textContent = name;
+  if(!/^\d{6}$/.test(otp)){
+    alert("Please enter the 6-digit OTP provided by A Insurance.");
+    return;
+  }
 
-  mcqIdx = 0;
-  answers = [];
-  qTimes = [];
-  mcqStart = Date.now();
+  if(otpVerified){
+    return;
+  }
 
-  showQ();
+  name = candidateName;
+  currentResultId = "ACC-" + Date.now() + "-" + Math.random().toString(36).slice(2,8).toUpperCase();
 
-  overallInt = setInterval(updateOverall,250);
+  btn.disabled = true;
+  btn.textContent = "Verifying OTP...";
+  status.style.display = "block";
+  status.className = "status saving";
+  status.textContent = "Verifying your one-time password...";
+
+  try{
+    const verification = await verifyCandidateOTP(candidateName, otp, currentResultId);
+
+    if(!verification || !verification.success){
+      throw new Error((verification && verification.error) || "OTP verification failed.");
+    }
+
+    otpVerified = true;
+    otpRecordId = verification.otpRecordId || "";
+    status.className = "status ok";
+    status.textContent = "OTP verified successfully. Starting the test...";
+
+    testStart = new Date();
+
+    document.getElementById("start").classList.add("hidden");
+    document.getElementById("mcq").classList.remove("hidden");
+    document.getElementById("cand1").textContent = name;
+
+    mcqIdx = 0;
+    answers = [];
+    qTimes = [];
+    mcqStart = Date.now();
+
+    showQ();
+    overallInt = setInterval(updateOverall,250);
+
+  }catch(error){
+    console.error(error);
+    btn.disabled = false;
+    btn.textContent = "Verify OTP & Start Test";
+    status.className = "status err";
+    status.textContent = error.message || "OTP verification failed.";
+  }
+}
+
+function verifyCandidateOTP(candidateName, otp, resultId){
+  return new Promise(function(resolve, reject){
+    const callbackName = "otpCallback_" + Date.now() + "_" + Math.random().toString(36).slice(2,8);
+    const script = document.createElement("script");
+    let settled = false;
+
+    const cleanup = function(){
+      try{ delete window[callbackName]; }catch(e){}
+      if(script.parentNode) script.parentNode.removeChild(script);
+    };
+
+    const timer = setTimeout(function(){
+      if(settled) return;
+      settled = true;
+      cleanup();
+      reject(new Error("OTP verification timed out. Please try again."));
+    }, 15000);
+
+    window[callbackName] = function(data){
+      if(settled) return;
+      settled = true;
+      clearTimeout(timer);
+      cleanup();
+      resolve(data);
+    };
+
+    script.onerror = function(){
+      if(settled) return;
+      settled = true;
+      clearTimeout(timer);
+      cleanup();
+      reject(new Error("Could not connect to the OTP verification service."));
+    };
+
+    const url = WEB_APP_URL
+      + "?action=verifyOTP"
+      + "&name=" + encodeURIComponent(candidateName)
+      + "&otp=" + encodeURIComponent(otp)
+      + "&resultId=" + encodeURIComponent(resultId)
+      + "&callback=" + encodeURIComponent(callbackName);
+
+    script.src = url;
+    document.head.appendChild(script);
+  });
 }
 
 function updateOverall(){
@@ -1221,6 +1329,8 @@ async function sendResult(
 
   payload.append("action", "saveResult");
   payload.append("resultId", currentResultId);
+  payload.append("otpRecordId", otpRecordId);
+  payload.append("otpVerified", otpVerified ? "Yes" : "No");
   payload.append("systemComment", currentSystemComment);
   payload.append("name", name);
   payload.append("testDate", formatDate(testStart || new Date()));
@@ -1269,6 +1379,32 @@ async function sendResult(
       })
     )
   );
+
+  // Full candidate-facing actual records
+  payload.append(
+    "mcqAnswers",
+    JSON.stringify(
+      questions.map(function(q, i){
+        return answers[i] === null || answers[i] === undefined
+          ? ""
+          : String.fromCharCode(65 + answers[i]);
+      })
+    )
+  );
+
+  payload.append(
+    "excelActual",
+    JSON.stringify(savedExcelActual || [])
+  );
+
+  payload.append("excelFileName", uploadedExcelName || "");
+  payload.append("excelFileMime", uploadedExcelMime || "");
+  if(uploadedExcelBase64){
+    payload.append("excelFileBase64", uploadedExcelBase64);
+  }
+
+  payload.append("myanmarText", actualMyanmarText || "");
+  payload.append("englishText", actualEnglishText || "");
 
   payload.append("myanmarScore", myanmarScore.toFixed(2));
   payload.append("myanmarAccuracy", myanmarAccuracy.toFixed(1));
