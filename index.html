@@ -38,6 +38,19 @@ th{background:#eef2f5}
   button{display:none!important}
   .no-print{display:none!important}
 }
+
+.section-review{
+  margin-top:16px;
+  padding:16px;
+  border:1px solid #d9ddea;
+  border-radius:10px;
+  background:#f8f9fc;
+}
+.section-review h3{margin:0 0 8px;font-size:18px}
+.section-review p{margin:6px 0;line-height:1.55}
+.section-review ul{margin:8px 0 0 20px}
+.section-review .review-label{font-weight:700}
+
 </style>
 </head>
 <body>
@@ -304,6 +317,7 @@ th{background:#eef2f5}
     </p>
 
     <div id="mcqBreakdown"></div>
+    <div id="mcqSectionReview" class="comment-panel section-review"></div>
 
     <hr>
 
@@ -318,6 +332,7 @@ th{background:#eef2f5}
     </p>
 
     <div id="excelBreakdown"></div>
+    <div id="excelSectionReview" class="comment-panel section-review"></div>
 
     <hr>
 
@@ -372,6 +387,7 @@ th{background:#eef2f5}
     <hr>
 
     <div id="typingBreakdown"></div>
+    <div id="typingSectionReview" class="comment-panel section-review"></div>
 
     <h2>Final Result</h2>
 
@@ -1231,6 +1247,81 @@ function getSystemComment(finalScore){
     " No major weakness was identified from the score thresholds used in this review.";
 }
 
+
+function getSectionBand_(pct){
+  pct = Number(pct) || 0;
+  if(pct >= 80) return "Strong";
+  if(pct >= 70) return "Good";
+  if(pct >= 60) return "Satisfactory";
+  if(pct >= 50) return "Basic";
+  return "Needs Improvement";
+}
+
+function buildMcqReview(score){
+  const pct = (Number(score||0)/30)*100;
+  const band = getSectionBand_(pct);
+  let detail = "";
+  if(pct >= 80){
+    detail = "The candidate demonstrated strong accounting knowledge across the assessed MCQ topics.";
+  }else if(pct >= 70){
+    detail = "The candidate demonstrated a good understanding of the assessed accounting concepts, with some areas requiring further review.";
+  }else if(pct >= 60){
+    detail = "The candidate demonstrated a satisfactory basic understanding, but several accounting concepts should be reviewed.";
+  }else if(pct >= 50){
+    detail = "The candidate demonstrated partial understanding of the assessed accounting concepts. Further review is recommended.";
+  }else{
+    detail = "The result indicates that the assessed accounting concepts require substantial review and reinforcement.";
+  }
+  return '<h3>Section 1 – Review &amp; Comment</h3>' +
+    '<p><span class="review-label">Performance Level:</span> '+band+
+    ' ('+pct.toFixed(1)+'%)</p><p>'+detail+'</p>' +
+    '<p><span class="review-label">Review Focus:</span> Review incorrect MCQ topics and strengthen understanding of financial accounting, adjustments, internal control and basic Excel/accounting calculations.</p>';
+}
+
+function buildExcelReview(score){
+  const pct = (Number(score||0)/10)*100;
+  const band = getSectionBand_(pct);
+  let detail = "";
+  if(pct >= 80){
+    detail = "The candidate completed most practical Excel requirements accurately and demonstrated good practical handling of the assigned tasks.";
+  }else if(pct >= 70){
+    detail = "The candidate demonstrated good practical Excel ability, with some tasks requiring additional checking.";
+  }else if(pct >= 60){
+    detail = "The candidate demonstrated a satisfactory practical level, although several tasks should be reviewed for accuracy.";
+  }else if(pct >= 50){
+    detail = "The candidate demonstrated partial practical ability. More practice with formulas, formatting and data handling is recommended.";
+  }else{
+    detail = "The practical result indicates that the assessed Excel tasks require further practice and review.";
+  }
+  return '<h3>Section 2 – Review &amp; Comment</h3>' +
+    '<p><span class="review-label">Performance Level:</span> '+band+
+    ' ('+pct.toFixed(1)+'%)</p><p>'+detail+'</p>' +
+    '<p><span class="review-label">Review Focus:</span> Review the candidate’s actual values and formulas task-by-task, especially calculation accuracy, cell references and required Excel functions.</p>';
+}
+
+function buildTypingReview(totalScore, myScore, myAcc, myCpm, enScore, enAcc, enCpm){
+  const pct = (Number(totalScore||0)/5)*100;
+  const band = getSectionBand_(pct);
+  let detail = "";
+  if(pct >= 80){
+    detail = "The candidate demonstrated strong typing accuracy and speed across the Myanmar and English tests.";
+  }else if(pct >= 70){
+    detail = "The candidate demonstrated good typing performance, with some room for improvement in accuracy or speed.";
+  }else if(pct >= 60){
+    detail = "The candidate demonstrated a satisfactory basic typing level, but accuracy and/or speed should be improved.";
+  }else if(pct >= 50){
+    detail = "The candidate demonstrated partial typing proficiency. Additional practice is recommended.";
+  }else{
+    detail = "The typing result indicates that accuracy and speed require further improvement.";
+  }
+  return '<h3>Section 3 – Review &amp; Comment</h3>' +
+    '<p><span class="review-label">Performance Level:</span> '+band+
+    ' ('+pct.toFixed(1)+'%)</p><p>'+detail+'</p>' +
+    '<p><span class="review-label">Myanmar:</span> Score '+Number(myScore||0).toFixed(2)+'/2.5, Accuracy '+Number(myAcc||0).toFixed(1)+'%, Speed '+Number(myCpm||0).toFixed(1)+' CPM.</p>' +
+    '<p><span class="review-label">English:</span> Score '+Number(enScore||0).toFixed(2)+'/2.5, Accuracy '+Number(enAcc||0).toFixed(1)+'%, Speed '+Number(enCpm||0).toFixed(1)+' CPM.</p>' +
+    '<p><span class="review-label">Review Focus:</span> Focus on accurate character-by-character typing first, then improve speed while maintaining accuracy.</p>';
+}
+
 function showResult(
   mcqScore,
   excelScore,
@@ -1357,6 +1448,23 @@ function showResult(
     '<div><b>Myanmar text typed:</b><pre class="actual-text">'+escapeHtml(actualMyanmarText)+'</pre></div>' +
     '<div><b>English text typed:</b><pre class="actual-text">'+escapeHtml(actualEnglishText)+'</pre></div>';
 
+  document.getElementById("mcqSectionReview").innerHTML =
+    buildMcqReview(mcqScore);
+
+  document.getElementById("excelSectionReview").innerHTML =
+    buildExcelReview(excelScore);
+
+  document.getElementById("typingSectionReview").innerHTML =
+    buildTypingReview(
+      typingScoreTotal,
+      myanmarScore,
+      myanmarAccuracy,
+      myanmarMetrics.cpm,
+      englishScore,
+      englishAccuracy,
+      englishMetrics.cpm
+    );
+
   sendResult(
     mcqScore,
     excelScore,
@@ -1407,6 +1515,9 @@ async function sendResult(
   payload.append("otpRecordId", otpRecordId);
   payload.append("otpVerified", otpVerified ? "Yes" : "No");
   payload.append("systemComment", currentSystemComment);
+  payload.append("mcqReview", buildMcqReview(mcqScore).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+  payload.append("excelReview", buildExcelReview(excelScore).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
+  payload.append("typingReview", buildTypingReview(typingScoreTotal, myanmarScore, myanmarAccuracy, myanmarMetrics.cpm, englishScore, englishAccuracy, englishMetrics.cpm).replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim());
   payload.append("name", name);
   payload.append("testDate", formatDate(testStart || new Date()));
   payload.append("startTime", formatTimeOnly(testStart || new Date()));
