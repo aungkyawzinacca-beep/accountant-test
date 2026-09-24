@@ -119,6 +119,26 @@ th{background:#eef2f5}
 
   </div>
 
+  <div class="browser-warning" role="alert" style="
+    margin-top:20px;
+    padding:18px 20px;
+    border:2px solid #b42318;
+    background:#fff1f0;
+    color:#8a1c13;
+    border-radius:10px;
+    box-shadow:0 2px 8px #0001;
+  ">
+    <div style="font-size:19px;font-weight:800;margin-bottom:7px;">
+      ⚠ IMPORTANT — DO NOT CLOSE OR REFRESH YOUR BROWSER
+    </div>
+    <div style="font-size:15px;line-height:1.7;">
+      Once the test starts, <b>do not close this browser, refresh the page, or leave the test page</b>
+      before the final result is saved. If the browser is closed or the page is refreshed before
+      submission, your test attempt and score <b>will not be recorded</b>, and you may lose the opportunity
+      to complete this attempt.
+    </div>
+  </div>
+
   <div style="margin-top:24px;">
     <label><b>Candidate Name</b></label>
 
@@ -311,6 +331,7 @@ th{background:#eef2f5}
         <th>Typed</th>
         <th>Correct</th>
         <th>Errors</th>
+        <th>Missing</th>
         <th>CPM (Characters/Min)</th>
         <th>Time</th>
       </tr>
@@ -322,6 +343,7 @@ th{background:#eef2f5}
         <td id="rMyanmarTyped"></td>
         <td id="rMyanmarCorrect"></td>
         <td id="rMyanmarErrors"></td>
+        <td id="rMyanmarMissing"></td>
         <td id="rMyanmarSpeed"></td>
         <td id="rMyanmarTime"></td>
       </tr>
@@ -333,6 +355,7 @@ th{background:#eef2f5}
         <td id="rEnglishTyped"></td>
         <td id="rEnglishCorrect"></td>
         <td id="rEnglishErrors"></td>
+        <td id="rEnglishMissing"></td>
         <td id="rEnglishSpeed"></td>
         <td id="rEnglishTime"></td>
       </tr>
@@ -407,7 +430,7 @@ th{background:#eef2f5}
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzAouQ021PDCTaolOQLiQTQxRCXgp1HjJsEoxiwsAerA0jUyu76dci6jaKAV-3kpL1vLQ/exec";
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx_PjAkAxNJF3KuzX51I-nopjOS4W8JoEOpfU3fSRFz_3hRgpof98E70qj30kvItAhSDw/exec";
 const questions = [{"q": "Which account normally has a credit balance?", "opts": ["Accounts Receivable", "Prepaid Insurance", "Accounts Payable", "Equipment"], "ans": 2}, {"q": "A company buys office equipment for $12,000 cash. Which entry is correct?", "opts": ["Dr Cash / Cr Equipment", "Dr Equipment / Cr Cash", "Dr Expense / Cr Cash", "Dr Equipment / Cr Revenue"], "ans": 1}, {"q": "Cash received in advance from a customer for services to be provided next month is initially recorded as:", "opts": ["Revenue", "Accounts Receivable", "Unearned Revenue", "Expense"], "ans": 2}, {"q": "The main purpose of an adjusting entry is to:", "opts": ["Close temporary accounts", "Recognize revenues and expenses in the proper period", "Record only cash transactions", "Eliminate all errors"], "ans": 1}, {"q": "Accounts Receivable is $100,000 and estimated uncollectible accounts are 3%. Required allowance is:", "opts": ["$300", "$3,000", "$30,000", "$97,000"], "ans": 1}, {"q": "If ending inventory is understated, current-year gross profit will generally be:", "opts": ["Overstated", "Understated", "Unchanged", "Doubled"], "ans": 1}, {"q": "Under FIFO, when prices are rising, the oldest inventory costs are generally assigned to:", "opts": ["Ending inventory", "Cost of Goods Sold", "Accounts Payable", "Revenue"], "ans": 1}, {"q": "A machine costs $50,000, residual value $5,000, useful life 5 years. Straight-line annual depreciation is:", "opts": ["$9,000", "$10,000", "$11,000", "$45,000"], "ans": 0}, {"q": "Which statement reports assets, liabilities and equity at a specific date?", "opts": ["Income Statement", "Cash Flow Statement", "Statement of Financial Position", "Statement of Changes in Equity"], "ans": 2}, {"q": "Which transaction increases both an asset and a liability?", "opts": ["Paying accounts payable", "Purchasing equipment on credit", "Collecting a receivable", "Paying salaries"], "ans": 1}, {"q": "The fundamental accounting equation is:", "opts": ["Assets = Revenue − Expenses", "Assets = Liabilities + Equity", "Assets + Liabilities = Equity", "Equity = Assets + Liabilities"], "ans": 1}, {"q": "Which is normally a current asset?", "opts": ["Land", "Long-term investment", "Inventory", "Patent with 15-year life"], "ans": 2}, {"q": "Accrued salary expense at year-end should be recorded as:", "opts": ["Dr Salary Expense / Cr Salary Payable", "Dr Salary Payable / Cr Salary Expense", "Dr Cash / Cr Salary Expense", "Dr Salary Expense / Cr Cash"], "ans": 0}, {"q": "Prepaid insurance decreases during the period because:", "opts": ["It becomes a liability", "Insurance coverage is consumed", "Cash is received", "Revenue is recognized"], "ans": 1}, {"q": "Which is a non-cash expense?", "opts": ["Rent Expense", "Salary Expense", "Depreciation Expense", "Electricity Expense"], "ans": 2}, {"q": "Sales are $500,000 and Cost of Goods Sold is $320,000. Gross profit is:", "opts": ["$180,000", "$320,000", "$500,000", "$820,000"], "ans": 0}, {"q": "Gross profit margin is:", "opts": ["Gross Profit ÷ Sales", "Net Profit ÷ Total Assets", "Gross Profit ÷ Total Assets", "Sales ÷ Gross Profit"], "ans": 0}, {"q": "The primary purpose of a bank reconciliation is to:", "opts": ["Calculate depreciation", "Compare company cash records with bank records and identify differences", "Calculate gross profit", "Prepare payroll"], "ans": 1}, {"q": "An outstanding cheque is a cheque that:", "opts": ["Has been issued but not yet presented to the bank", "Has been received but not recorded", "Has been cancelled", "Has been rejected by a supplier"], "ans": 0}, {"q": "Which error may not cause the trial balance to disagree?", "opts": ["Debit recorded as credit", "Transaction omitted entirely", "$5,000 debit recorded as $500", "Debit posted without corresponding credit"], "ans": 1}, {"q": "Fixed costs, within the relevant range, generally:", "opts": ["Increase directly with volume", "Remain constant in total despite activity changes", "Are always zero at zero production", "Always decrease as production increases"], "ans": 1}, {"q": "Variable cost per unit generally:", "opts": ["Remains constant within the relevant range", "Increases with total production", "Equals fixed cost per unit", "Is always zero at zero production"], "ans": 0}, {"q": "Selling price is $50 and variable cost is $30. Contribution margin per unit is:", "opts": ["$20", "$30", "$50", "$80"], "ans": 0}, {"q": "Fixed costs are $100,000 and contribution margin per unit is $25. Break-even volume is:", "opts": ["2,500 units", "4,000 units", "5,000 units", "25,000 units"], "ans": 1}, {"q": "Contribution margin equals:", "opts": ["Sales − Fixed Costs", "Sales − Variable Costs", "Sales − Total Costs", "Gross Profit − Fixed Costs"], "ans": 1}, {"q": "Actual sales are $600,000 and break-even sales are $450,000. Margin of safety is:", "opts": ["$150,000", "$450,000", "$600,000", "$1,050,000"], "ans": 0}, {"q": "Which is most likely a direct cost for a furniture manufacturer?", "opts": ["Factory rent", "Factory manager salary", "Wood used in a specific table", "Security expense"], "ans": 2}, {"q": "Which budgeting approach requires each expense to be justified from zero?", "opts": ["Incremental Budgeting", "Flexible Budgeting", "Zero-Based Budgeting", "Rolling Budgeting"], "ans": 2}, {"q": "Which control best demonstrates segregation of duties?", "opts": ["One employee handles cash and performs bank reconciliation", "One employee approves and pays suppliers", "One employee authorizes payments while another processes them", "An accountant approves their own journal entries"], "ans": 2}, {"q": "Which Excel formula correctly totals cells B2 through B20?", "opts": ["=ADD(B2:B20)", "=TOTAL(B2:B20)", "=SUM(B2:B20)", "=COUNT(B2:B20)"], "ans": 2}];
 const MYANMAR_TEXT = "စာရင်းကိုင်ဌာနသည် နေ့စဉ်ငွေကြေးလွှဲပြောင်းမှုများကို စစ်ဆေးပြီး စာရွက်စာတမ်းများကို မှန်ကန်စွာ သိမ်းဆည်းရမည်။ အချက်အလက်များကို အချိန်မီ မှတ်တမ်းတင်ခြင်းနှင့် အစီရင်ခံစာများကို မှန်ကန်စွာ ပြင်ဆင်ခြင်းသည် လုပ်ငန်း၏ ဘဏ္ဍာရေးစီမံခန့်ခွဲမှုအတွက် အရေးကြီးပါသည်။";
 const ENGLISH_TEXT = "An accountant should record transactions accurately, review supporting documents, reconcile balances, and prepare timely financial reports. Good accounting work depends on careful checking, clear documentation, and consistent attention to detail.";
@@ -449,6 +472,7 @@ let uploadedExcelName = "";
 let uploadedExcelMime = "";
 let otpVerified = false;
 let otpRecordId = "";
+let testActive = false;
 
 function formatDate(d){ return new Intl.DateTimeFormat("en-GB", {year:"numeric",month:"2-digit",day:"2-digit"}).format(d); }
 function formatDateTime(d){ return new Intl.DateTimeFormat("en-GB", {year:"numeric",month:"2-digit",day:"2-digit",hour:"2-digit",minute:"2-digit",second:"2-digit",hour12:false}).format(d); }
@@ -494,9 +518,7 @@ function typingMetrics(target, typed, seconds){
   typed = cleanText(typed);
   seconds = Math.max(0.1, Number(seconds || 0));
 
-  const maxLength = Math.max(target.length, typed.length);
   const compareLength = Math.min(target.length, typed.length);
-
   let correct = 0;
 
   for(let i = 0; i < compareLength; i++){
@@ -505,22 +527,34 @@ function typingMetrics(target, typed, seconds){
     }
   }
 
+  // Errors = characters the candidate actually typed incorrectly.
+  // Missing = target characters the candidate did not type.
+  // An empty answer therefore has 0 Errors, not the full target length.
   const substitutions = compareLength - correct;
-  const omissions = Math.max(0, target.length - typed.length);
-  const extras = Math.max(0, typed.length - target.length);
+  const missing = Math.max(0, target.length - typed.length);
+  const extra = Math.max(0, typed.length - target.length);
 
-  const errors = substitutions + omissions + extras;
-  const accuracy = maxLength ? (correct / maxLength) * 100 : 0;
-  const cpm = (typed.length / seconds) * 60;
+  const errors = substitutions + extra;
+  const accuracy = target.length ? (correct / target.length) * 100 : 0;
+  const cpm = typed.length ? (typed.length / seconds) * 60 : 0;
 
   return {
     typed: typed.length,
     correct: correct,
     errors: errors,
+    missing: missing,
     accuracy: accuracy,
     cpm: cpm
   };
 }
+
+// Protect the active test from accidental browser close, refresh, or navigation.
+window.addEventListener("beforeunload", function(event){
+  if(!testActive) return;
+  event.preventDefault();
+  event.returnValue = "";
+  return "";
+});
 
 async function startTest(){
   const candidateName = document.getElementById("candidateName").value.trim();
@@ -564,6 +598,7 @@ async function startTest(){
     status.textContent = "OTP verified successfully. Starting the test...";
 
     testStart = new Date();
+    testActive = true;
 
     document.getElementById("start").classList.add("hidden");
     document.getElementById("mcq").classList.remove("hidden");
@@ -1032,6 +1067,7 @@ function finishTyping(autoEnd){
   actualMyanmarText = myanmarInput;
   actualEnglishText = englishInput;
   testEnd = new Date();
+  testActive = false;
 
   const myanmarTime =
     Math.min(
@@ -1244,6 +1280,7 @@ function showResult(
   document.getElementById("rMyanmarTyped").textContent = myanmarMetrics.typed;
   document.getElementById("rMyanmarCorrect").textContent = myanmarMetrics.correct;
   document.getElementById("rMyanmarErrors").textContent = myanmarMetrics.errors;
+  document.getElementById("rMyanmarMissing").textContent = myanmarMetrics.missing;
   document.getElementById("rMyanmarSpeed").textContent = myanmarMetrics.cpm.toFixed(1) + " CPM";
   document.getElementById("rMyanmarTime").textContent = fmt(myanmarTime);
 
@@ -1252,6 +1289,7 @@ function showResult(
   document.getElementById("rEnglishTyped").textContent = englishMetrics.typed;
   document.getElementById("rEnglishCorrect").textContent = englishMetrics.correct;
   document.getElementById("rEnglishErrors").textContent = englishMetrics.errors;
+  document.getElementById("rEnglishMissing").textContent = englishMetrics.missing;
   document.getElementById("rEnglishSpeed").textContent = englishMetrics.cpm.toFixed(1) + " CPM";
   document.getElementById("rEnglishTime").textContent = fmt(englishTime);
 
@@ -1417,11 +1455,13 @@ async function sendResult(
   payload.append("myanmarTyped", myanmarMetrics.typed);
   payload.append("myanmarCorrect", myanmarMetrics.correct);
   payload.append("myanmarErrors", myanmarMetrics.errors);
+  payload.append("myanmarMissing", myanmarMetrics.missing);
   payload.append("myanmarCPM", myanmarMetrics.cpm.toFixed(1));
 
   payload.append("englishTyped", englishMetrics.typed);
   payload.append("englishCorrect", englishMetrics.correct);
   payload.append("englishErrors", englishMetrics.errors);
+  payload.append("englishMissing", englishMetrics.missing);
   payload.append("englishCPM", englishMetrics.cpm.toFixed(1));
 
   try{
