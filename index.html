@@ -458,6 +458,7 @@ th{background:#eef2f5}
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzAouQ021PDCTaolOQLiQTQxRCXgp1HjJsEoxiwsAerA0jUyu76dci6jaKAV-3kpL1vLQ/exec";
 const questions = [{"q": "Which account normally has a credit balance?", "opts": ["Accounts Receivable", "Prepaid Insurance", "Accounts Payable", "Equipment"], "ans": 2}, {"q": "A company buys office equipment for $12,000 cash. Which entry is correct?", "opts": ["Dr Cash / Cr Equipment", "Dr Equipment / Cr Cash", "Dr Expense / Cr Cash", "Dr Equipment / Cr Revenue"], "ans": 1}, {"q": "Cash received in advance from a customer for services to be provided next month is initially recorded as:", "opts": ["Revenue", "Accounts Receivable", "Unearned Revenue", "Expense"], "ans": 2}, {"q": "The main purpose of an adjusting entry is to:", "opts": ["Close temporary accounts", "Recognize revenues and expenses in the proper period", "Record only cash transactions", "Eliminate all errors"], "ans": 1}, {"q": "Accounts Receivable is $100,000 and estimated uncollectible accounts are 3%. Required allowance is:", "opts": ["$300", "$3,000", "$30,000", "$97,000"], "ans": 1}, {"q": "If ending inventory is understated, current-year gross profit will generally be:", "opts": ["Overstated", "Understated", "Unchanged", "Doubled"], "ans": 1}, {"q": "Under FIFO, when prices are rising, the oldest inventory costs are generally assigned to:", "opts": ["Ending inventory", "Cost of Goods Sold", "Accounts Payable", "Revenue"], "ans": 1}, {"q": "A machine costs $50,000, residual value $5,000, useful life 5 years. Straight-line annual depreciation is:", "opts": ["$9,000", "$10,000", "$11,000", "$45,000"], "ans": 0}, {"q": "Which statement reports assets, liabilities and equity at a specific date?", "opts": ["Income Statement", "Cash Flow Statement", "Statement of Financial Position", "Statement of Changes in Equity"], "ans": 2}, {"q": "Which transaction increases both an asset and a liability?", "opts": ["Paying accounts payable", "Purchasing equipment on credit", "Collecting a receivable", "Paying salaries"], "ans": 1}, {"q": "The fundamental accounting equation is:", "opts": ["Assets = Revenue − Expenses", "Assets = Liabilities + Equity", "Assets + Liabilities = Equity", "Equity = Assets + Liabilities"], "ans": 1}, {"q": "Which is normally a current asset?", "opts": ["Land", "Long-term investment", "Inventory", "Patent with 15-year life"], "ans": 2}, {"q": "Accrued salary expense at year-end should be recorded as:", "opts": ["Dr Salary Expense / Cr Salary Payable", "Dr Salary Payable / Cr Salary Expense", "Dr Cash / Cr Salary Expense", "Dr Salary Expense / Cr Cash"], "ans": 0}, {"q": "Prepaid insurance decreases during the period because:", "opts": ["It becomes a liability", "Insurance coverage is consumed", "Cash is received", "Revenue is recognized"], "ans": 1}, {"q": "Which is a non-cash expense?", "opts": ["Rent Expense", "Salary Expense", "Depreciation Expense", "Electricity Expense"], "ans": 2}, {"q": "Sales are $500,000 and Cost of Goods Sold is $320,000. Gross profit is:", "opts": ["$180,000", "$320,000", "$500,000", "$820,000"], "ans": 0}, {"q": "Gross profit margin is:", "opts": ["Gross Profit ÷ Sales", "Net Profit ÷ Total Assets", "Gross Profit ÷ Total Assets", "Sales ÷ Gross Profit"], "ans": 0}, {"q": "The primary purpose of a bank reconciliation is to:", "opts": ["Calculate depreciation", "Compare company cash records with bank records and identify differences", "Calculate gross profit", "Prepare payroll"], "ans": 1}, {"q": "An outstanding cheque is a cheque that:", "opts": ["Has been issued but not yet presented to the bank", "Has been received but not recorded", "Has been cancelled", "Has been rejected by a supplier"], "ans": 0}, {"q": "Which error may not cause the trial balance to disagree?", "opts": ["Debit recorded as credit", "Transaction omitted entirely", "$5,000 debit recorded as $500", "Debit posted without corresponding credit"], "ans": 1}, {"q": "Fixed costs, within the relevant range, generally:", "opts": ["Increase directly with volume", "Remain constant in total despite activity changes", "Are always zero at zero production", "Always decrease as production increases"], "ans": 1}, {"q": "Variable cost per unit generally:", "opts": ["Remains constant within the relevant range", "Increases with total production", "Equals fixed cost per unit", "Is always zero at zero production"], "ans": 0}, {"q": "Selling price is $50 and variable cost is $30. Contribution margin per unit is:", "opts": ["$20", "$30", "$50", "$80"], "ans": 0}, {"q": "Fixed costs are $100,000 and contribution margin per unit is $25. Break-even volume is:", "opts": ["2,500 units", "4,000 units", "5,000 units", "25,000 units"], "ans": 1}, {"q": "Contribution margin equals:", "opts": ["Sales − Fixed Costs", "Sales − Variable Costs", "Sales − Total Costs", "Gross Profit − Fixed Costs"], "ans": 1}, {"q": "Actual sales are $600,000 and break-even sales are $450,000. Margin of safety is:", "opts": ["$150,000", "$450,000", "$600,000", "$1,050,000"], "ans": 0}, {"q": "Which is most likely a direct cost for a furniture manufacturer?", "opts": ["Factory rent", "Factory manager salary", "Wood used in a specific table", "Security expense"], "ans": 2}, {"q": "Which budgeting approach requires each expense to be justified from zero?", "opts": ["Incremental Budgeting", "Flexible Budgeting", "Zero-Based Budgeting", "Rolling Budgeting"], "ans": 2}, {"q": "Which control best demonstrates segregation of duties?", "opts": ["One employee handles cash and performs bank reconciliation", "One employee approves and pays suppliers", "One employee authorizes payments while another processes them", "An accountant approves their own journal entries"], "ans": 2}, {"q": "Which Excel formula correctly totals cells B2 through B20?", "opts": ["=ADD(B2:B20)", "=TOTAL(B2:B20)", "=SUM(B2:B20)", "=COUNT(B2:B20)"], "ans": 2}];
@@ -1703,114 +1704,130 @@ async function sendResult(
   }
 }
 
-function downloadPDF(){
-  const candidate = safeFileName(document.getElementById("candidateName").value || name);
+async function buildResultPdfBlob_(){
+  const element = document.getElementById("printArea");
+  if(!element) throw new Error("Result area not found.");
+
+  const candidate = safeFileName(document.getElementById("candidateName").value || name || "Candidate");
   const filename = candidate + "_Accountant_Test_Result.pdf";
-  const oldTitle = document.title;
-  document.title = filename.replace(/\.pdf$/i, "");
-  const display = document.getElementById("pdfFileNameDisplay");
-  if(display) display.textContent = "PDF File Name: " + filename + " — choose Save as PDF in the print dialog.";
-  window.print();
-  setTimeout(function(){ document.title = oldTitle; }, 5000);
+
+  const options = {
+    margin: [8, 8, 8, 8],
+    filename: filename,
+    image: { type: "jpeg", quality: 0.98 },
+    html2canvas: {
+      scale: 2,
+      useCORS: true,
+      backgroundColor: "#ffffff",
+      logging: false,
+      scrollX: 0,
+      scrollY: 0
+    },
+    jsPDF: { unit: "mm", format: "a4", orientation: "portrait" },
+    pagebreak: { mode: ["css", "legacy"] }
+  };
+
+  // Build the exact same PDF blob used by both Download and Email.
+  return await html2pdf().set(options).from(element).outputPdf("blob");
 }
 
-
-function getEmailPdfText_(id){
-  const el = document.getElementById(id);
-  return el ? (el.innerText || el.textContent || "").trim() : "";
+function downloadBlob_(blob, filename){
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function(){ URL.revokeObjectURL(url); }, 2000);
 }
 
-function emailResultPDF(){
+async function downloadPDF(){
   const status = document.getElementById("emailStatus");
-  const resultId = currentResultId || "";
+  const candidate = safeFileName(document.getElementById("candidateName").value || name || "Candidate");
+  const filename = candidate + "_Accountant_Test_Result.pdf";
 
-  if(!resultId){
+  try{
+    if(status){
+      status.className = "status saving";
+      status.textContent = "Preparing Result PDF...";
+    }
+    const blob = await buildResultPdfBlob_();
+    downloadBlob_(blob, filename);
+    if(status){
+      status.className = "status ok";
+      status.textContent = "Result PDF downloaded.";
+    }
+  }catch(error){
+    console.error(error);
     if(status){
       status.className = "status err";
-      status.textContent = "Result ID is missing. Please submit the test result first.";
+      status.textContent = "Could not create the Result PDF.";
     }
-    return;
-  }
-
-  const url =
-    WEB_APP_URL +
-    "?action=emailResultPDF&resultId=" +
-    encodeURIComponent(resultId);
-
-  if(status){
-    status.className = "status saving";
-    status.textContent =
-      "Opening the secure email service. Please allow authorization if Google asks.";
-  }
-
-  // GET is used intentionally: Apps Script Web Apps can execute this
-  // cross-origin without the no-cors opaque-response problem.
-  const win = window.open(url, "_blank");
-
-  if(!win){
-    if(status){
-      status.className = "status err";
-      status.textContent =
-        "Popup was blocked. Please allow popups for this test site and click Email Result PDF again.";
-    }
-    return;
-  }
-
-  if(status){
-    status.className = "status ok";
-    status.textContent =
-      "Email request sent. The Result PDF is being sent to aungkyaw.zin@ainsurance.com.mm.";
   }
 }
 
-
-function loadSheetJS(){
-
-  return new Promise(function(resolve,reject){
-
-    const script =
-      document.createElement("script");
-
-    script.src =
-      "https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js";
-
-    script.onload =
-      function(){ resolve(); };
-
-    script.onerror =
-      function(){
-        reject(
-          new Error(
-            "Excel reader could not be loaded."
-          )
-        );
-      };
-
-    document.head.appendChild(script);
-
+function blobToBase64_(blob){
+  return new Promise(function(resolve, reject){
+    const reader = new FileReader();
+    reader.onloadend = function(){
+      try{
+        const dataUrl = String(reader.result || "");
+        resolve(dataUrl.split(",")[1] || "");
+      }catch(e){ reject(e); }
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
   });
 }
 
-["myanmarInput","englishInput"].forEach(function(id){
+async function emailResultPDF(){
+  const status = document.getElementById("emailStatus");
+  const candidate = safeFileName(document.getElementById("candidateName").value || name || "Candidate");
+  const filename = candidate + "_Accountant_Test_Result.pdf";
 
-  const el =
-    document.getElementById(id);
-
-  el.addEventListener(
-    "paste",
-    function(event){
-
-      event.preventDefault();
-
-      alert(
-        "Paste is disabled during the typing test."
-      );
-
+  try{
+    if(status){
+      status.className = "status saving";
+      status.textContent = "Preparing the same Result PDF for email...";
     }
-  );
 
-});
-</script>
+    const blob = await buildResultPdfBlob_();
+    const pdfBase64 = await blobToBase64_(blob);
+
+    const payload = new URLSearchParams();
+    payload.append("action", "emailResultPDFBlob");
+    payload.append("resultId", currentResultId || "");
+    payload.append("name", name || candidate);
+    payload.append("fileName", filename);
+    payload.append("pdfBase64", pdfBase64);
+
+    const response = await fetch(WEB_APP_URL, {
+      method:"POST",
+      headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
+      body:payload.toString()
+    });
+
+    const text = await response.text();
+    let result = {};
+    try { result = JSON.parse(text); } catch(e) {}
+
+    if(!result.success){
+      throw new Error(result.error || "Email request failed.");
+    }
+
+    if(status){
+      status.className = "status ok";
+      status.textContent = "The same Result PDF has been emailed to aungkyaw.zin@ainsurance.com.mm.";
+    }
+  }catch(error){
+    console.error(error);
+    if(status){
+      status.className = "status err";
+      status.textContent = "Email failed: " + (error.message || error);
+    }
+  }
+}
 
 </body>
 </html>
