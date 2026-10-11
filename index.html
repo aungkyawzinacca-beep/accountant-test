@@ -245,7 +245,11 @@ th{background:#eef2f5}
     <br><br>
     <input type="file" id="excelFile" accept=".xlsx,.xls">
     <br><br>
-    <button id="nextExcelBtn" class="primary" onclick="submitExcelFile()">Next Section</button>
+    <div style="display:flex;gap:12px;flex-wrap:wrap;align-items:center">
+      <button id="submitExcelBtn" class="primary" onclick="submitExcelFile()">Submit Excel Test</button>
+      <button id="nextExcelBtn" type="button" style="background:#6c757d;color:#fff;border:0;border-radius:8px;padding:12px 20px;cursor:pointer" onclick="goNextSectionWithoutUpload()">Next Section</button>
+    </div>
+    <div class="muted" style="margin-top:8px">Upload your completed workbook with “Submit Excel Test”. Use “Next Section” only if you cannot upload; the Excel score will be 0.</div>
     <div id="excelUploadStatus"></div>
   </div>
 </div>
@@ -1073,6 +1077,13 @@ async function submitExcelFile(){
   }
 }
 
+function goNextSectionWithoutUpload(){
+  if(excelSubmitted) return;
+  const confirmed = confirm("Skip the Excel upload and continue to Section 3? The Excel score will be 0/10.");
+  if(!confirmed) return;
+  finishExcel(true);
+}
+
 function finishExcel(autoEnd){
   if(excelSubmitted) return;
 
@@ -1573,10 +1584,22 @@ function showResult(
 
   document.getElementById("excelBreakdown").innerHTML =
     "<h3>Section 2 – Excel Practical Test Detailed Record</h3>" +
-    '<table><tr><th>Task</th><th>Candidate Actual Value</th><th>Formula</th><th>Expected</th><th>Mark</th></tr>' +
+    '<table class="excel-detail-table" style="width:100%;border-collapse:collapse;border:1px solid #9aa7b2"><thead><tr>' +
+      '<th style="border:1px solid #9aa7b2;padding:8px">Task</th>' +
+      '<th style="border:1px solid #9aa7b2;padding:8px">Candidate Actual Value</th>' +
+      '<th style="border:1px solid #9aa7b2;border-right:3px solid #52616b;padding:8px">Candidate Formula</th>' +
+      '<th style="border:1px solid #9aa7b2;border-left:3px solid #52616b;padding:8px">Correct Answer</th>' +
+      '<th style="border:1px solid #9aa7b2;padding:8px">Mark</th>' +
+    '</tr></thead><tbody>' +
     savedExcelActual.map(function(item,i){
-      return '<tr><td>Task '+(i+1)+'</td><td style="text-align:left">'+escapeHtml(item.value)+'</td><td style="text-align:left">'+escapeHtml(item.formula)+'</td><td>'+escapeHtml(item.expected)+'</td><td>'+(excelDetails[i]?1:0)+'/1</td></tr>';
-    }).join("") + '</table>' + '<p><b>Uploaded Excel File:</b> '+escapeHtml(uploadedExcelName || "Original workbook")+' — stored in Google Drive and linked in the Recruitment Results sheet.</p>';
+      return '<tr>' +
+        '<td style="border:1px solid #9aa7b2;padding:8px">Task '+(i+1)+'</td>' +
+        '<td style="text-align:left;border:1px solid #9aa7b2;padding:8px">'+escapeHtml(item.value)+'</td>' +
+        '<td style="text-align:left;border:1px solid #9aa7b2;border-right:3px solid #52616b;padding:8px;overflow-wrap:anywhere">'+escapeHtml(item.formula || "Not provided")+'</td>' +
+        '<td style="border:1px solid #9aa7b2;border-left:3px solid #52616b;padding:8px">'+escapeHtml(item.expected)+'</td>' +
+        '<td style="border:1px solid #9aa7b2;padding:8px">'+(excelDetails[i]?1:0)+'/1</td>' +
+      '</tr>';
+    }).join("") + '</tbody></table>' + '<p><b>Uploaded Excel File:</b> '+escapeHtml(uploadedExcelName || "Original workbook")+' — stored in Google Drive and linked in the Recruitment Results sheet.</p>';
 
   document.getElementById("typingBreakdown").innerHTML =
     '<h3>Section 3 – Actual Typing Record</h3>' +
