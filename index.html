@@ -215,10 +215,7 @@ th{background:#eef2f5}
   <div class="card">
     <h2 id="qText"></h2>
     <div id="opts"></div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:12px;">
-      <button class="primary" type="button" onclick="nextQ()">Next Question</button>
-      <button type="button" onclick="nextQ()" style="background:#6c757d;color:#fff;border:0;border-radius:8px;padding:12px 18px;cursor:pointer;">Skip Question</button>
-    </div>
+    <button id="nextMcqBtn" class="primary" onclick="nextQ(mcqIdx)">Next Question</button>
   </div>
 </div>
 
@@ -229,7 +226,7 @@ th{background:#eef2f5}
     <p>
       Download the Excel workbook, open it in Microsoft Excel,
       complete the yellow answer cells, save the completed
-      <b>.xlsx</b> file, and upload it here.
+      <b>.xlsx</b> file, upload it here, then press Next Section.
     </p>
     <div style="display:flex;justify-content:space-between;gap:20px;align-items:center">
       <b id="cand2"></b>
@@ -248,7 +245,7 @@ th{background:#eef2f5}
     <br><br>
     <input type="file" id="excelFile" accept=".xlsx,.xls">
     <br><br>
-    <button class="primary" onclick="submitExcelFile()">Submit Excel Test</button>
+    <button id="nextExcelBtn" class="primary" onclick="submitExcelFile()">Next Section</button>
     <div id="excelUploadStatus"></div>
   </div>
 </div>
@@ -462,6 +459,7 @@ th{background:#eef2f5}
 
 </div>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzAouQ021PDCTaolOQLiQTQxRCXgp1HjJsEoxiwsAerA0jUyu76dci6jaKAV-3kpL1vLQ/exec";
@@ -481,6 +479,8 @@ let qStart = 0;
 let mcqStart = 0;
 let overallInt = null;
 let qInt = null;
+let lastAnsweredQuestionIndex = -1;
+let mcqFinishInProgress = false;
 
 let excelStart = 0;
 let excelInt = null;
@@ -600,6 +600,43 @@ window.addEventListener("beforeunload", function(event){
   return "";
 });
 
+function loadScriptOnce_(urls, globalName){
+  return new Promise(function(resolve, reject){
+    if(window[globalName]) return resolve(window[globalName]);
+    let index = 0;
+    function tryNext(){
+      if(window[globalName]) return resolve(window[globalName]);
+      if(index >= urls.length) return reject(new Error(globalName + " library could not be loaded. Check your internet connection or CDN access."));
+      const script = document.createElement("script");
+      script.src = urls[index++];
+      script.async = true;
+      script.onload = function(){
+        if(window[globalName]) resolve(window[globalName]);
+        else tryNext();
+      };
+      script.onerror = tryNext;
+      document.head.appendChild(script);
+    }
+    tryNext();
+  });
+}
+
+async function loadSheetJS(){
+  if(window.XLSX) return window.XLSX;
+  return await loadScriptOnce_([
+    "https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js",
+    "https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"
+  ], "XLSX");
+}
+
+async function ensureHtml2PdfLoaded_(){
+  if(typeof window.html2pdf === "function") return window.html2pdf;
+  return await loadScriptOnce_([
+    "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js",
+    "https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js"
+  ], "html2pdf");
+}
+
 async function loadQuestions(){
   const response = await fetch(WEB_APP_URL + "?action=getQuestions", {method:"GET", cache:"no-store"});
   if(!response.ok) throw new Error("Could not load the Question Bank.");
@@ -691,6 +728,8 @@ async function startTest(){
     mcqIdx = 0;
     answers = [];
     qTimes = [];
+    lastAnsweredQuestionIndex = -1;
+    mcqFinishInProgress = false;
     mcqStart = Date.now();
 
     showQ();
@@ -760,16 +799,18 @@ function updateOverall(){
 }
 
 function showQ(){
+  if(mcqFinishInProgress || mcqIdx >= questions.length) return;
+  const questionIndex = mcqIdx;
   qStart = Date.now();
 
-  document.getElementById("mcqCounter").textContent = "Question " + (mcqIdx + 1) + " of " + questions.length;
-  document.getElementById("mcqBar").style.width = (mcqIdx / 30 * 100) + "%";
-  document.getElementById("qText").textContent = (mcqIdx + 1) + ". " + questions[mcqIdx].q;
+  document.getElementById("mcqCounter").textContent = "Question " + (questionIndex + 1) + " of " + questions.length;
+  document.getElementById("mcqBar").style.width = (questionIndex / questions.length * 100) + "%";
+  document.getElementById("qText").textContent = (questionIndex + 1) + ". " + questions[questionIndex].q;
 
   const box = document.getElementById("opts");
   box.innerHTML = "";
 
-  questions[mcqIdx].opts.forEach(function(option, i){
+  questions[questionIndex].opts.forEach(function(option, i){
     box.innerHTML +=
       '<label class="option">' +
       '<input type="radio" name="ans" value="' + i + '">' +
@@ -777,43 +818,57 @@ function showQ(){
       '</label>';
   });
 
+  const nextBtn = document.getElementById("nextMcqBtn");
+  if(nextBtn) nextBtn.disabled = false;
   clearInterval(qInt);
-  qInt = setInterval(updateQ,200);
-  updateQ();
+  qInt = setInterval(function(){ updateQ(questionIndex); }, 200);
+  updateQ(questionIndex);
 }
 
-function updateQ(){
+function updateQ(questionIndex){
+  // A queued timer callback from the previous question must never advance the new question.
+  if(questionIndex !== mcqIdx || mcqFinishInProgress) return;
   const remain = 60 - (Date.now() - qStart) / 1000;
-
   document.getElementById("qTimer").textContent = fmt(remain);
-
-  if(remain <= 0) nextQ();
+  if(remain <= 0) nextQ(questionIndex);
 }
 
-function nextQ(){
+function nextQ(expectedIndex){
+  const questionIndex = (typeof expectedIndex === "number") ? expectedIndex : mcqIdx;
+  if(mcqFinishInProgress || questionIndex !== mcqIdx) return;
+  if(questionIndex < 0 || questionIndex >= questions.length) return;
+  // Prevent double-clicks and timer/button races from appending the same question twice.
+  if(lastAnsweredQuestionIndex === questionIndex || answers.length > questionIndex) return;
+  lastAnsweredQuestionIndex = questionIndex;
+
   const selected = document.querySelector('input[name="ans"]:checked');
   const answer = selected ? Number(selected.value) : null;
-
   answers.push(answer);
-  qTimes.push(Math.min(60,(Date.now() - qStart) / 1000));
+  qTimes.push(Math.min(60, Math.max(0, (Date.now() - qStart) / 1000)));
 
+  const nextBtn = document.getElementById("nextMcqBtn");
+  if(nextBtn) nextBtn.disabled = true;
   clearInterval(qInt);
-
-  mcqIdx++;
+  mcqIdx = questionIndex + 1;
 
   if(mcqIdx < questions.length) showQ();
   else finishMCQ(false);
 }
 
 async function finishMCQ(autoEnd){
+  if(mcqFinishInProgress || mcqGraded) return;
+  mcqFinishInProgress = true;
   clearInterval(qInt);
   clearInterval(overallInt);
 
-  if(autoEnd && mcqIdx < 30 && answers.length === mcqIdx){
+  if(autoEnd && mcqIdx < questions.length && answers.length === mcqIdx){
     answers.push(null);
     qTimes.push(Math.min(60,(Date.now() - qStart) / 1000));
   }
 
+  // The server accepts exactly 30 answers. Never submit duplicates or extras.
+  answers = answers.slice(0, questions.length);
+  qTimes = qTimes.slice(0, questions.length);
   while(answers.length < questions.length) answers.push(null);
   while(qTimes.length < questions.length) qTimes.push(0);
 
@@ -964,11 +1019,11 @@ async function submitExcelFile(){
   status.textContent = "Checking the Excel workbook...";
 
   try{
-    if(typeof XLSX === "undefined") await loadSheetJS();
+    if(typeof window.XLSX === "undefined") await loadSheetJS();
 
     const buffer = await file.arrayBuffer();
 
-    const workbook = XLSX.read(
+    const workbook = window.XLSX.read(
       buffer,
       {type:"array", cellFormula:true}
     );
@@ -1014,7 +1069,7 @@ async function submitExcelFile(){
 
     status.className = "status err";
     status.textContent =
-      "Excel file could not be read. Use the provided workbook and save it as .xlsx.";
+      "Excel file could not be read: " + (error && error.message ? error.message : "Please use the provided workbook and save it as .xlsx.");
   }
 }
 
@@ -1777,8 +1832,9 @@ async function buildResultPdfBlob_(){
     pagebreak: { mode: ["css", "legacy"] }
   };
 
-  // Build the exact same PDF blob used by both Download and Email.
-  return await html2pdf().set(options).from(element).outputPdf("blob");
+  // Load the PDF library with a fallback CDN if the first script did not load.
+  const pdfFactory = await ensureHtml2PdfLoaded_();
+  return await pdfFactory().set(options).from(element).outputPdf("blob");
 }
 
 function downloadBlob_(blob, filename){
