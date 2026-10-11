@@ -1020,7 +1020,8 @@ async function submitExcelFile(){
 
     status.className = "status err";
     status.textContent =
-      "Excel file could not be read. Use the provided workbook and save it as .xlsx.";
+      status.textContent =
+  "Excel upload error: " + (error.message || String(error));
   }
 }
 
