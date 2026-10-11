@@ -805,7 +805,12 @@ function nextQ(){
   else finishMCQ(false);
 }
 
+let mcqSubmitting = false;
+
 async function finishMCQ(autoEnd){
+  if (mcqSubmitting) return;
+  mcqSubmitting = true;
+
   clearInterval(qInt);
   clearInterval(overallInt);
 
@@ -814,6 +819,7 @@ async function finishMCQ(autoEnd){
     qTimes.push(Math.min(60,(Date.now() - qStart) / 1000));
   }
 
+  answers = answers.slice(0, questions.length);
   while(answers.length < questions.length) answers.push(null);
   while(qTimes.length < questions.length) qTimes.push(0);
 
