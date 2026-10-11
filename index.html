@@ -205,6 +205,7 @@ th{background:#eef2f5}
 <div id="mcq" class="hidden">
   <div class="card">
     <div style="display:flex;justify-content:space-between;gap:15px;align-items:center">
+<div id="mcqStatus" class="status saving" style="display:none"></div>
       <div><b id="cand1"></b><div id="mcqCounter"></div></div>
       <div>Overall: <span class="timer" id="overall">30:00</span></div>
     </div>
@@ -461,7 +462,9 @@ th{background:#eef2f5}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 <script>
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzAouQ021PDCTaolOQLiQTQxRCXgp1HjJsEoxiwsAerA0jUyu76dci6jaKAV-3kpL1vLQ/exec";
-const questions = [{"q": "Which account normally has a credit balance?", "opts": ["Accounts Receivable", "Prepaid Insurance", "Accounts Payable", "Equipment"], "ans": 2}, {"q": "A company buys office equipment for $12,000 cash. Which entry is correct?", "opts": ["Dr Cash / Cr Equipment", "Dr Equipment / Cr Cash", "Dr Expense / Cr Cash", "Dr Equipment / Cr Revenue"], "ans": 1}, {"q": "Cash received in advance from a customer for services to be provided next month is initially recorded as:", "opts": ["Revenue", "Accounts Receivable", "Unearned Revenue", "Expense"], "ans": 2}, {"q": "The main purpose of an adjusting entry is to:", "opts": ["Close temporary accounts", "Recognize revenues and expenses in the proper period", "Record only cash transactions", "Eliminate all errors"], "ans": 1}, {"q": "Accounts Receivable is $100,000 and estimated uncollectible accounts are 3%. Required allowance is:", "opts": ["$300", "$3,000", "$30,000", "$97,000"], "ans": 1}, {"q": "If ending inventory is understated, current-year gross profit will generally be:", "opts": ["Overstated", "Understated", "Unchanged", "Doubled"], "ans": 1}, {"q": "Under FIFO, when prices are rising, the oldest inventory costs are generally assigned to:", "opts": ["Ending inventory", "Cost of Goods Sold", "Accounts Payable", "Revenue"], "ans": 1}, {"q": "A machine costs $50,000, residual value $5,000, useful life 5 years. Straight-line annual depreciation is:", "opts": ["$9,000", "$10,000", "$11,000", "$45,000"], "ans": 0}, {"q": "Which statement reports assets, liabilities and equity at a specific date?", "opts": ["Income Statement", "Cash Flow Statement", "Statement of Financial Position", "Statement of Changes in Equity"], "ans": 2}, {"q": "Which transaction increases both an asset and a liability?", "opts": ["Paying accounts payable", "Purchasing equipment on credit", "Collecting a receivable", "Paying salaries"], "ans": 1}, {"q": "The fundamental accounting equation is:", "opts": ["Assets = Revenue − Expenses", "Assets = Liabilities + Equity", "Assets + Liabilities = Equity", "Equity = Assets + Liabilities"], "ans": 1}, {"q": "Which is normally a current asset?", "opts": ["Land", "Long-term investment", "Inventory", "Patent with 15-year life"], "ans": 2}, {"q": "Accrued salary expense at year-end should be recorded as:", "opts": ["Dr Salary Expense / Cr Salary Payable", "Dr Salary Payable / Cr Salary Expense", "Dr Cash / Cr Salary Expense", "Dr Salary Expense / Cr Cash"], "ans": 0}, {"q": "Prepaid insurance decreases during the period because:", "opts": ["It becomes a liability", "Insurance coverage is consumed", "Cash is received", "Revenue is recognized"], "ans": 1}, {"q": "Which is a non-cash expense?", "opts": ["Rent Expense", "Salary Expense", "Depreciation Expense", "Electricity Expense"], "ans": 2}, {"q": "Sales are $500,000 and Cost of Goods Sold is $320,000. Gross profit is:", "opts": ["$180,000", "$320,000", "$500,000", "$820,000"], "ans": 0}, {"q": "Gross profit margin is:", "opts": ["Gross Profit ÷ Sales", "Net Profit ÷ Total Assets", "Gross Profit ÷ Total Assets", "Sales ÷ Gross Profit"], "ans": 0}, {"q": "The primary purpose of a bank reconciliation is to:", "opts": ["Calculate depreciation", "Compare company cash records with bank records and identify differences", "Calculate gross profit", "Prepare payroll"], "ans": 1}, {"q": "An outstanding cheque is a cheque that:", "opts": ["Has been issued but not yet presented to the bank", "Has been received but not recorded", "Has been cancelled", "Has been rejected by a supplier"], "ans": 0}, {"q": "Which error may not cause the trial balance to disagree?", "opts": ["Debit recorded as credit", "Transaction omitted entirely", "$5,000 debit recorded as $500", "Debit posted without corresponding credit"], "ans": 1}, {"q": "Fixed costs, within the relevant range, generally:", "opts": ["Increase directly with volume", "Remain constant in total despite activity changes", "Are always zero at zero production", "Always decrease as production increases"], "ans": 1}, {"q": "Variable cost per unit generally:", "opts": ["Remains constant within the relevant range", "Increases with total production", "Equals fixed cost per unit", "Is always zero at zero production"], "ans": 0}, {"q": "Selling price is $50 and variable cost is $30. Contribution margin per unit is:", "opts": ["$20", "$30", "$50", "$80"], "ans": 0}, {"q": "Fixed costs are $100,000 and contribution margin per unit is $25. Break-even volume is:", "opts": ["2,500 units", "4,000 units", "5,000 units", "25,000 units"], "ans": 1}, {"q": "Contribution margin equals:", "opts": ["Sales − Fixed Costs", "Sales − Variable Costs", "Sales − Total Costs", "Gross Profit − Fixed Costs"], "ans": 1}, {"q": "Actual sales are $600,000 and break-even sales are $450,000. Margin of safety is:", "opts": ["$150,000", "$450,000", "$600,000", "$1,050,000"], "ans": 0}, {"q": "Which is most likely a direct cost for a furniture manufacturer?", "opts": ["Factory rent", "Factory manager salary", "Wood used in a specific table", "Security expense"], "ans": 2}, {"q": "Which budgeting approach requires each expense to be justified from zero?", "opts": ["Incremental Budgeting", "Flexible Budgeting", "Zero-Based Budgeting", "Rolling Budgeting"], "ans": 2}, {"q": "Which control best demonstrates segregation of duties?", "opts": ["One employee handles cash and performs bank reconciliation", "One employee approves and pays suppliers", "One employee authorizes payments while another processes them", "An accountant approves their own journal entries"], "ans": 2}, {"q": "Which Excel formula correctly totals cells B2 through B20?", "opts": ["=ADD(B2:B20)", "=TOTAL(B2:B20)", "=SUM(B2:B20)", "=COUNT(B2:B20)"], "ans": 2}];
+let questions = [];
+let mcqMarks = [];
+let mcqGraded = false;
 const MYANMAR_TEXT = "စာရင်းကိုင်ဌာနသည် နေ့စဉ်ငွေကြေးလွှဲပြောင်းမှုများကို စစ်ဆေးပြီး စာရွက်စာတမ်းများကို မှန်ကန်စွာ သိမ်းဆည်းရမည်။ အချက်အလက်များကို အချိန်မီ မှတ်တမ်းတင်ခြင်းနှင့် အစီရင်ခံစာများကို မှန်ကန်စွာ ပြင်ဆင်ခြင်းသည် လုပ်ငန်း၏ ဘဏ္ဍာရေးစီမံခန့်ခွဲမှုအတွက် အရေးကြီးပါသည်။";
 const ENGLISH_TEXT = "An accountant should record transactions accurately, review supporting documents, reconcile balances, and prepare timely financial reports. Good accounting work depends on careful checking, clear documentation, and consistent attention to detail.";
 
@@ -594,6 +597,39 @@ window.addEventListener("beforeunload", function(event){
   return "";
 });
 
+async function loadQuestions(){
+  const response = await fetch(WEB_APP_URL + "?action=getQuestions", {method:"GET", cache:"no-store"});
+  if(!response.ok) throw new Error("Could not load the Question Bank.");
+  const data = await response.json();
+  if(!data || !data.success || !Array.isArray(data.questions)) throw new Error("Question Bank is unavailable.");
+  if(data.questions.length !== 30) throw new Error("Question Bank must contain exactly 30 active MCQ questions.");
+  if(data.questions.some(q => !q.id || !String(q.q || "").trim() || !Array.isArray(q.opts) || q.opts.length !== 4 || q.opts.some(o => !String(o || "").trim()))) {
+    throw new Error("Please check the Question Bank: each active MCQ needs a question and four options.");
+  }
+  questions = data.questions;
+}
+
+async function gradeMcqOnServer(){
+  const payload = new URLSearchParams();
+  payload.append("action", "gradeMCQ");
+  payload.append("resultId", currentResultId);
+  payload.append("answers", JSON.stringify(answers));
+  const response = await fetch(WEB_APP_URL, {
+    method:"POST",
+    headers:{"Content-Type":"application/x-www-form-urlencoded;charset=UTF-8"},
+    body:payload.toString()
+  });
+  const text = await response.text();
+  let result;
+  try { result = JSON.parse(text); } catch(e) { throw new Error("Server returned an invalid MCQ scoring response."); }
+  if(!response.ok || !result.success || !Array.isArray(result.marks) || result.marks.length !== questions.length) {
+    throw new Error(result.error || "Could not score the MCQ answers on the server.");
+  }
+  mcqMarks = result.marks.map(v => Number(v) === 1 ? 1 : 0);
+  savedMcqScore = Number(result.score) || 0;
+  mcqGraded = true;
+}
+
 async function startTest(){
   const candidateName = document.getElementById("candidateName").value.trim();
   const otp = document.getElementById("candidateOtp").value.trim();
@@ -633,7 +669,14 @@ async function startTest(){
     otpVerified = true;
     otpRecordId = verification.otpRecordId || "";
     status.className = "status ok";
+    status.textContent = "OTP verified. Loading questions...";
+    await loadQuestions();
+
+    status.className = "status ok";
     status.textContent = "OTP verified successfully. Starting the test...";
+    mcqMarks = [];
+    mcqGraded = false;
+    savedMcqScore = 0;
 
     testStart = new Date();
     testActive = true;
@@ -716,7 +759,7 @@ function updateOverall(){
 function showQ(){
   qStart = Date.now();
 
-  document.getElementById("mcqCounter").textContent = "Question " + (mcqIdx + 1) + " of 30";
+  document.getElementById("mcqCounter").textContent = "Question " + (mcqIdx + 1) + " of " + questions.length;
   document.getElementById("mcqBar").style.width = (mcqIdx / 30 * 100) + "%";
   document.getElementById("qText").textContent = (mcqIdx + 1) + ". " + questions[mcqIdx].q;
 
@@ -755,11 +798,11 @@ function nextQ(){
 
   mcqIdx++;
 
-  if(mcqIdx < 30) showQ();
+  if(mcqIdx < questions.length) showQ();
   else finishMCQ(false);
 }
 
-function finishMCQ(autoEnd){
+async function finishMCQ(autoEnd){
   clearInterval(qInt);
   clearInterval(overallInt);
 
@@ -768,8 +811,20 @@ function finishMCQ(autoEnd){
     qTimes.push(Math.min(60,(Date.now() - qStart) / 1000));
   }
 
-  while(answers.length < 30) answers.push(null);
-  while(qTimes.length < 30) qTimes.push(0);
+  while(answers.length < questions.length) answers.push(null);
+  while(qTimes.length < questions.length) qTimes.push(0);
+
+  const mcqStatus = document.getElementById("mcqStatus");
+  if(mcqStatus){ mcqStatus.textContent = "Submitting answers for secure scoring..."; mcqStatus.style.display = "block"; }
+  try {
+    await gradeMcqOnServer();
+  } catch(error) {
+    console.error(error);
+    if(mcqStatus){ mcqStatus.textContent = "MCQ scoring failed. Please contact the administrator; do not continue the test."; }
+    alert("MCQ scoring failed. Please contact the administrator before continuing. " + (error.message || ""));
+    return;
+  }
+  if(mcqStatus) mcqStatus.style.display = "none";
 
   document.getElementById("mcq").classList.add("hidden");
   document.getElementById("excel").classList.remove("hidden");
@@ -987,12 +1042,7 @@ function finishExcel(autoEnd){
 }
 
 function getMcqScore(){
-  return answers.reduce(
-    function(total, answer, i){
-      return total + (answer === questions[i].ans ? 1 : 0);
-    },
-    0
-  );
+  return mcqGraded ? savedMcqScore : 0;
 }
 
 /* =========================
@@ -1459,9 +1509,8 @@ function showResult(
     '<table><tr><th>Q</th><th>Question</th><th>Candidate Selected</th><th>Correct Answer</th><th>Mark</th><th>Time</th></tr>' +
     questions.map(function(q,i){
       const selected = answers[i] === null || answers[i] === undefined ? "Not Answered" : String.fromCharCode(65+answers[i]) + ". " + q.opts[answers[i]];
-      const correct = String.fromCharCode(65+q.ans) + ". " + q.opts[q.ans];
-      const mark = answers[i] === q.ans ? 1 : 0;
-      return '<tr><td>Q'+(i+1)+'</td><td style="text-align:left">'+q.q+'<br><small>A. '+q.opts[0]+' | B. '+q.opts[1]+' | C. '+q.opts[2]+' | D. '+q.opts[3]+'</small></td><td style="text-align:left">'+selected+'</td><td style="text-align:left">'+correct+'</td><td>'+mark+'/1</td><td>'+Number(qTimes[i]||0).toFixed(1)+' sec</td></tr>';
+      const mark = Number(mcqMarks[i]) === 1 ? 1 : 0;
+      return '<tr><td>Q'+(i+1)+'</td><td style="text-align:left">'+escapeHtml(q.q)+'<br><small>A. '+escapeHtml(q.opts[0])+' | B. '+escapeHtml(q.opts[1])+' | C. '+escapeHtml(q.opts[2])+' | D. '+escapeHtml(q.opts[3])+'</small></td><td style="text-align:left">'+escapeHtml(selected)+'</td><td>Withheld</td><td>'+mark+'/1</td><td>'+Number(qTimes[i]||0).toFixed(1)+' sec</td></tr>';
     }).join("") + '</table>';
 
   document.getElementById("excelBreakdown").innerHTML =
@@ -1572,9 +1621,7 @@ async function sendResult(
   payload.append(
     "mcqMarks",
     JSON.stringify(
-      questions.map(function(q,i){
-        return answers[i] === q.ans ? 1 : 0;
-      })
+      mcqMarks
     )
   );
 
